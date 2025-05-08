@@ -1,36 +1,46 @@
 #include "gl_debug.h"
 #include <SDL3/SDL_log.h>
 
-bool _glCheckError(const char* file, const char* function, int line) {
+bool _glCheckError(const char *file, const char *function, int line) {
 	GLenum errorCode = GL_NO_ERROR;
 
 	while ((errorCode = glGetError()) != GL_NO_ERROR) {
 		char buffer[32] = {};
 		switch (errorCode) {
-		case GL_INVALID_ENUM: strcat(buffer, "INVALID_ENUM"); break;
-		case GL_INVALID_VALUE: strcat(buffer, "INVALID_VALUE"); break;
-		case GL_INVALID_OPERATION: strcat(buffer, "INVALID_OPERATION"); break;
-		case GL_STACK_OVERFLOW: strcat(buffer, "STACK_OVERFLOW"); break;
-		case GL_STACK_UNDERFLOW: strcat(buffer, "STACK_UNDERFLOW"); break;
-		case GL_OUT_OF_MEMORY: strcat(buffer, "OUT_OF_MEMORY"); break;
+		case GL_INVALID_ENUM:
+			strcat(buffer, "INVALID_ENUM");
+			break;
+		case GL_INVALID_VALUE:
+			strcat(buffer, "INVALID_VALUE");
+			break;
+		case GL_INVALID_OPERATION:
+			strcat(buffer, "INVALID_OPERATION");
+			break;
+		case GL_STACK_OVERFLOW:
+			strcat(buffer, "STACK_OVERFLOW");
+			break;
+		case GL_STACK_UNDERFLOW:
+			strcat(buffer, "STACK_UNDERFLOW");
+			break;
+		case GL_OUT_OF_MEMORY:
+			strcat(buffer, "OUT_OF_MEMORY");
+			break;
 		case GL_INVALID_FRAMEBUFFER_OPERATION:
 			strcat(buffer, "INVALID_FRAMEBUFFER_OPERATION");
 			break;
-		default: strcat(buffer, "UNKNOWN"); break;
+		default:
+			strcat(buffer, "UNKNOWN");
+			break;
 		}
-		SDL_LogError(1, "OPENGL(%d):\t%s:%d: %s", errorCode, function, line, buffer);
+		SDL_LogError(1, "OPENGL(%d):\t%s:%d: %s", errorCode, function, line,
+		             buffer);
 	}
 
 	return errorCode != GL_NO_ERROR;
 }
 
-void glDebugOutput(GLenum source,
-				   GLenum type,
-				   unsigned int id,
-				   GLenum severity,
-				   GLsizei length,
-				   const char* message,
-				   const void* userParam) {
+void glDebugOutput(GLenum source, GLenum type, unsigned int id, GLenum severity,
+                   GLsizei length, const char *message, const void *userParam) {
 	// ignore non-significant error/warning codes
 	if (id == 131169 || id == 131185 || id == 131218 || id == 131204)
 		return;
@@ -44,9 +54,10 @@ void glDebugOutput(GLenum source,
 	// case GL_DEBUG_SOURCE_SHADER_COMPILER:
 	// 	std::cout << "Source: Shader Compiler";
 	// 	break;
-	// case GL_DEBUG_SOURCE_THIRD_PARTY: std::cout << "Source: Third Party"; break;
-	// case GL_DEBUG_SOURCE_APPLICATION: std::cout << "Source: Application"; break;
-	// case GL_DEBUG_SOURCE_OTHER: std::cout << "Source: Other"; break;
+	// case GL_DEBUG_SOURCE_THIRD_PARTY: std::cout << "Source: Third Party";
+	// break; case GL_DEBUG_SOURCE_APPLICATION: std::cout << "Source:
+	// Application"; break; case GL_DEBUG_SOURCE_OTHER: std::cout << "Source:
+	// Other"; break;
 	// }
 	// std::cout << std::endl;
 

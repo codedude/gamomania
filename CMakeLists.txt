@@ -14,7 +14,7 @@ project(hello VERSION 0.0.1)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIG>")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIG>")
 
-set(SOURCES main demo shader gl_debug file)
+set(SOURCES main demo shader gl_debug file texture camera event light material list)
 list(TRANSFORM SOURCES PREPEND "src/")
 list(TRANSFORM SOURCES APPEND ".c")
 
@@ -23,17 +23,30 @@ list(APPEND SOURCES vendor/glad/glad.c)
 
 add_executable(hello ${SOURCES})
 
+target_link_libraries(hello PRIVATE cglm_headers)
+add_subdirectory(vendor/cglm/ EXCLUDE_FROM_ALL)
+
 # Create your game executable target as usual
 target_include_directories(hello PRIVATE vendor)
+target_include_directories(hello PRIVATE vendor/assimp/include)
 target_include_directories(hello PRIVATE src)
 
 target_include_directories(hello PRIVATE /usr/include/)
 target_link_directories(hello PRIVATE /usr/lib64/)
+target_link_directories(hello PRIVATE vendor/assimp/bin)
+
+set(CMAKE_BUILD_TYPE "Debug")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS_DEBUG}")
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DDEBUG")
+
+# set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address -g")
+# add_compile_options(-fsanitize=address -g)
+# add_link_options(-fsanitize=address -g)
 
 # Link to the actual SDL3 library.
-target_link_libraries(hello PRIVATE SDL3 GL m)
+target_link_libraries(hello PRIVATE SDL3 GL m assimp)
 
-add_compile_definitions(PROJECT_PATH="${CMAKE_SOURCE_DIR}/src")
+add_compile_definitions(PROJECT_PATH="${CMAKE_SOURCE_DIR}")
 add_custom_command(
   TARGET ${PROJECT_NAME} POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
