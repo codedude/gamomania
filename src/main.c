@@ -1,4 +1,5 @@
 #include "alloc.h"
+#include "list.h"
 #include <SDL3/SDL_hints.h>
 #define SDL_MAIN_USE_CALLBACKS 1 /* use the callbacks instead of main() */
 #include "camera.h"
@@ -112,6 +113,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
 		SDL_Log("Error shader_init 2");
 		return SDL_APP_FAILURE;
 	}
+	List_clear(&shaderLoaderList, &Shader_loaderDelete);
 
 	if (!loadVertices(appData)) {
 		SDL_Log("Error loadVertices");
@@ -165,8 +167,8 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result) {
 
 	Camera_destroy(appData->cam);
 	unloadVertices(appData);
-	// Shader_free(&appData->program);
-	// Shader_free(&appData->lightProgram);
+	Shader_free(&appData->program);
+	Shader_free(&appData->lightProgram);
 	SDL_GL_DestroyContext(appData->glContext);
 	SDL_DestroyWindow(appData->sdlWindow);
 	FREE(appData);

@@ -1,5 +1,6 @@
 #include "list.h"
 #include "alloc.h"
+#include <SDL3/SDL_log.h>
 #include <assert.h>
 
 List *List_create() {
@@ -18,13 +19,13 @@ void _List_clear(List *list, void (*deleteData)(void *data)) {
 
 	void *data;
 	while ((data = List_pop(list)) != NULL) {
-		(*deleteData)(data);
+		if (deleteData)
+			(*deleteData)(data);
 	}
 }
 
 bool _List_add(List *list, void *data) {
 	assert(list != NULL);
-
 	ListItem *item = ALLOC_ZERO(1, *item);
 	CHECK_ALLOC(item, false);
 	item->data = data;
@@ -35,7 +36,6 @@ bool _List_add(List *list, void *data) {
 
 void *List_pop(List *list) {
 	assert(list != NULL);
-
 	if (list->head == NULL)
 		return NULL;
 	void *data = list->head->data;

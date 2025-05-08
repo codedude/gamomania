@@ -2,6 +2,7 @@
 #include "alloc.h"
 #include "camera.h"
 #include "cglm/util.h"
+#include "list.h"
 #include "material.h"
 #include "shader.h"
 #include "texture.h"
@@ -70,21 +71,19 @@ void demoRender(AppData *appData) {
 	glUseProgram(appData->program->id);
 
 	mat4 projectionMat = GLM_MAT4_IDENTITY;
-	unsigned int modelLoc = glGetUniformLocation(appData->program->id, "model");
-	unsigned int viewLoc = glGetUniformLocation(appData->program->id, "view");
+	unsigned int modelLoc = Shader_uniformGet(appData->program, "model");
+	unsigned int viewLoc = Shader_uniformGet(appData->program, "view");
 	unsigned int projectionLoc =
-	    glGetUniformLocation(appData->program->id, "projection");
+	    Shader_uniformGet(appData->program, "projection");
 
 	glm_perspective(glm_rad(appData->cam->fov), appData->cam->aspect,
 	                appData->cam->nearZ, appData->cam->farZ, projectionMat);
 
-	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, (float *)appData->cam->lookAt);
-	glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, (float *)projectionMat);
+	Shader_setMat4(viewLoc, appData->cam->lookAt);
+	Shader_setMat4(projectionLoc, projectionMat);
 
-	unsigned int viewPosLoc =
-	    glGetUniformLocation(appData->program->id, "viewPos");
-	glUniform3f(viewPosLoc, appData->cam->pos[0], appData->cam->pos[1],
-	            appData->cam->pos[2]);
+	unsigned int viewPosLoc = Shader_uniformGet(appData->program, "viewPos");
+	Shader_setVec3(viewPosLoc, appData->cam->pos);
 
 	const float radius = 10.0f;
 	float camX = sin(SDL_GetTicks() / 1000.) * radius;
@@ -102,7 +101,7 @@ void demoRender(AppData *appData) {
 		glm_translate(modelMat, cubePositions[i]);
 		// glm_rotate(modelMat, SDL_GetTicks() / 1000.0 * glm_rad(angle),
 		//            (vec3){1.0, 0.3, 0.5});
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, (float *)modelMat);
+		Shader_setMat4(modelLoc, modelMat);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 	}
 
@@ -113,14 +112,13 @@ void demoRender(AppData *appData) {
 	    glGetUniformLocation(appData->lightProgram->id, "view");
 	unsigned int lightProjectionLoc =
 	    glGetUniformLocation(appData->lightProgram->id, "projection");
-	glUniformMatrix4fv(lightViewLoc, 1, GL_FALSE,
-	                   (float *)appData->cam->lookAt);
-	glUniformMatrix4fv(lightProjectionLoc, 1, GL_FALSE, (float *)projectionMat);
+	Shader_setMat4(lightViewLoc, appData->cam->lookAt);
+	Shader_setMat4(lightProjectionLoc, projectionMat);
 
 	mat4 lightModelMat = GLM_MAT4_IDENTITY;
 	glm_translate(lightModelMat, (vec3){0.f, 1.f, -2.f});
 	glm_scale(lightModelMat, (vec3){0.2f, 0.2f, 0.2f});
-	glUniformMatrix4fv(lightModelLoc, 1, GL_FALSE, (float *)lightModelMat);
+	Shader_setMat4(lightModelLoc, lightModelMat);
 	glBindVertexArray(appData->lightVAO);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 }
@@ -217,48 +215,45 @@ bool loadVertices(AppData *appData) {
 
 	glUseProgram(appData->program->id);
 	// spot light
-	// glUniform3f(glGetUniformLocation(appData->program->id, "light.pos"),
+	// glUniform3f(Shader_uniformGet(appData->program, "light.pos"),
 	//             appData->cam->pos[0], appData->cam->pos[1],
 	//             appData->cam->pos[2]);
-	// glUniform3f(glGetUniformLocation(appData->program->id,
+	// glUniform3f(Shader_uniformGet(appData->program,
 	// "light.direction"),
 	//             appData->cam->forward[0], appData->cam->forward[1],
 	//             appData->cam->forward[2]);
-	// glUniform1f(glGetUniformLocation(appData->program->id, "light.cutOff"),
+	// Shader_setFloat(Shader_uniformGet(appData->program, "light.cutOff"),
 	//             SDL_cosf(glm_rad(16.66f)));
-	// glUniform1f(glGetUniformLocation(appData->program->id,
+	// Shader_setFloat(Shader_uniformGet(appData->program,
 	// "light.outerCutOff"),
 	//             SDL_cosf(glm_rad(20.0f)));
 
 	// point light
-	glUniform3f(glGetUniformLocation(appData->program->id, "light.pos"), 0.f,
-	            0.33f, -2.f);
-	glUniform1f(glGetUniformLocation(appData->program->id, "light.constant"),
-	            1.0f);
-	glUniform1f(glGetUniformLocation(appData->program->id, "light.linear"),
-	            0.09f);
-	glUniform1f(glGetUniformLocation(appData->program->id, "light.quadratic"),
-	            0.032f);
+	Shader_setVec3(Shader_uniformGet(appData->program, "light.pos"),
+	               (vec3){0.f, 0.33f, -2.f});
+	Shader_setFloat(Shader_uniformGet(appData->program, "light.constant"),
+	                1.0f);
+	Shader_setFloat(Shader_uniformGet(appData->program, "light.linear"), 0.09f);
+	Shader_setFloat(Shader_uniformGet(appData->program, "light.quadratic"),
+	                0.032f);
 
 	// direction light
-	// glUniform3f(glGetUniformLocation(appData->program->id,
+	// glUniform3f(Shader_uniformGet(appData->program,
 	// "light.direction"),
 	//             -0.2f, -1.0f, -0.3f);
 
-	glUniform3f(glGetUniformLocation(appData->program->id, "light.ambient"),
-	            0.2f, 0.2f, 0.2f);
-	glUniform3f(glGetUniformLocation(appData->program->id, "light.diffuse"),
-	            0.5f, 0.5f, 0.5f);
-	glUniform3f(glGetUniformLocation(appData->program->id, "light.specular"),
-	            1.0f, 1.0f, 1.0f);
+	Shader_setVec3(Shader_uniformGet(appData->program, "light.ambient"),
+	               (vec3){0.2f, 0.2f, 0.2f});
+	Shader_setVec3(Shader_uniformGet(appData->program, "light.diffuse"),
+	               (vec3){0.5f, 0.5f, 0.5f});
+	Shader_setVec3(Shader_uniformGet(appData->program, "light.specular"),
+	               (vec3){1.0f, 1.0f, 1.0f});
 
 	// material
-	glUniform1i(glGetUniformLocation(appData->program->id, "material.diffuse"),
-	            0);
-	glUniform1i(glGetUniformLocation(appData->program->id, "material.specular"),
-	            1);
-	glUniform1f(
-	    glGetUniformLocation(appData->program->id, "material.shininess"), 64.f);
+	Shader_setInt(Shader_uniformGet(appData->program, "material.diffuse"), 0);
+	Shader_setInt(Shader_uniformGet(appData->program, "material.specular"), 1);
+	Shader_setFloat(Shader_uniformGet(appData->program, "material.shininess"),
+	                64.f);
 
 	Camera_setPosAndDir(appData->cam, (vec3){0., 0., 3.}, (vec3){0., 0., -1.});
 
@@ -271,4 +266,9 @@ void unloadVertices(AppData *appData) {
 	glDeleteBuffers(1, &appData->EBO);
 	glDeleteBuffers(1, &appData->VBO);
 	Material_delete(appData->program->container);
+
+	List_clear(&appData->program->uniformList, &Shader_uniformDelete);
+	List_clear(&appData->program->uniformBlockList, &Shader_uniformDelete);
+	List_clear(&appData->lightProgram->uniformList, &Shader_uniformDelete);
+	List_clear(&appData->lightProgram->uniformBlockList, &Shader_uniformDelete);
 }

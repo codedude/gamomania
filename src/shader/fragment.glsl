@@ -37,7 +37,6 @@ struct SpotLight {
     float outerCutOff;
 };
 
-
 in vec3 Normal;
 in vec3 FragPos;
 in vec2 TexCoords;
@@ -45,6 +44,7 @@ in vec2 TexCoords;
 uniform vec3 viewPos;
 uniform Material material;
 uniform PointLight light;
+
 
 void main()
 {

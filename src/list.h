@@ -19,8 +19,8 @@ void _List_clear(List *list, void (*deleteData)(void *data));  // both
 bool _List_add(List *list, void *data);                        // both
 void *List_pop(List *list);                                    // both
 
-#define List_delete(l, f) _List_delete((l), (void (*)(void *data))(f));
-#define List_clear(l, f) _List_clear((l), (void (*)(void *data))(f));
-#define List_add(l, d) _List_add((l), (void *)(d));
+#define List_delete(l, f) _List_delete((l), (void (*)(void *data))(f))
+#define List_clear(l, f) _List_clear((l), (void (*)(void *data))(f))
+#define List_add(l, d) _List_add((l), (void *)(d))
 
 #endif

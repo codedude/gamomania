@@ -4,28 +4,39 @@
 #include "cglm/cglm.h"
 #include "list.h"
 #include "material.h"
-#include "texture.h"
 #include <glad/glad.h>
 #include <stddef.h>
+
+#define SHADER_UNIFORM_MAX_LEN 128
 
 // From project root
 static const char *SHADER_FOLDER = "src/shader/";
 
 typedef GLuint ProgramId;
 typedef GLuint ShaderId;
-typedef unsigned int UniformLocation;
+typedef GLint UniformLocation;
 
 static const ProgramId InvalidProgramId = 0;
 static const ShaderId InvalidShaderId = 0;
+static const UniformLocation InvalidLocation = -1;
+
+// TODO: real hash map
+//  simple list for now
+typedef struct {
+	char *name;
+	UniformLocation id; // location for uniform, index for uniform block
+} UniformData;
 
 typedef struct {
-	GLenum type;
-	ShaderId id;
-	const char *filePath;
+	GLenum type;    // vertex, fragment... shader
+	ShaderId id;    // ogl id gotten after compile
+	char *filePath; // file to load
 } ShaderLoader;
 
 typedef struct {
 	ProgramId id;
+	List uniformList;
+	List uniformBlockList;
 	Material *container;
 } ShaderProgram;
 
@@ -36,6 +47,13 @@ bool Shader_init(ShaderProgram **program, List *loaderList);
 void Shader_free(ShaderProgram **program);
 
 // use struct only for loading, then delete ShaderLoader info
+void Shader_uniformDelete(UniformData *data);
+UniformData *Shader_uniformCreate(const char *name, UniformLocation id);
+bool Shader_uniformLoad(ShaderProgram *program);
+UniformLocation Shader_uniformGet(ShaderProgram *program, const char *name);
+UniformLocation Shader_uniformBlockGet(ShaderProgram *program,
+                                       const char *name);
+
 bool Shader_shaderLoad(ShaderLoader *shader);
 void Shader_shaderUnload(ShaderId shader);
 ProgramId Shader_programLoad(List *loaderList);

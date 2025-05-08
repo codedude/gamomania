@@ -59,25 +59,126 @@ ProgramId Shader_programLoad(List *loaderList) {
 
 	programId = glCreateProgram();
 	if (glCheckError())
-		return 0;
+		return InvalidProgramId;
 	while (iter) {
 		RET_IF_FALSE(Shader_shaderLoad(iter->data), InvalidProgramId);
 		glAttachShader(programId, ((ShaderLoader *)iter->data)->id);
 		if (glCheckError())
-			return 0;
+			return InvalidProgramId;
+		// Shader_loaderDelete(((ShaderLoader *)iter->data));
 		iter = iter->next;
 	}
 	glLinkProgram(programId);
 	if (glCheckError())
-		return 0;
+		return InvalidProgramId;
 	glGetProgramiv(programId, GL_LINK_STATUS, &success);
 	if (!success) {
 		glGetProgramInfoLog(programId, 512, NULL, infoLog);
 		SDL_LogError(1, "OPENGL(-):\t link program = %s", infoLog);
+		return InvalidProgramId;
 	}
-	List_clear(loaderList, &Shader_loaderDelete);
 
 	return programId;
+}
+
+UniformData *Shader_uniformCreate(const char *name, UniformLocation id) {
+	UniformData *data = ALLOC(1, *data);
+	CHECK_ALLOC(data, NULL);
+	data->id = id;
+	data->name = strdup(name);
+	CHECK_ALLOC(data->name, NULL);
+	return data;
+}
+
+bool Shader_uniformLoad(ShaderProgram *program) {
+	GLuint *idUniforms = NULL;
+	GLint *outUniforms = NULL;
+	GLint nUniforms = -1;
+	GLsizei length = -1;
+	char nameUniform[SHADER_UNIFORM_MAX_LEN] = {};
+	UniformLocation loc = -1;
+	UniformData *data = NULL;
+
+	glUseProgram(program->id);
+	// UNIFORMS
+	// get number of uniform in program
+	glGetProgramiv(program->id, GL_ACTIVE_UNIFORMS, &nUniforms);
+	idUniforms = ALLOC_ZERO(nUniforms, *idUniforms);
+	CHECK_ALLOC(idUniforms, false);
+	outUniforms = ALLOC_ZERO(nUniforms, *outUniforms);
+	CHECK_ALLOC(outUniforms, false);
+	for (int i = 0; i < nUniforms; ++i) {
+		idUniforms[i] = i;
+	}
+	// dont add uniform block
+	glGetActiveUniformsiv(program->id, nUniforms, idUniforms,
+	                      GL_UNIFORM_BLOCK_INDEX, outUniforms);
+	for (int i = 0; i < nUniforms; ++i) {
+		if (outUniforms[i] != -1) {
+			// SDL_Log("skip: %d", i);
+			continue;
+		}
+		// get name of uniform, then Location (not always equals to index)
+		glGetActiveUniformName(program->id, i, SHADER_UNIFORM_MAX_LEN, &length,
+		                       nameUniform);
+		loc = glGetUniformLocation(program->id, nameUniform);
+		data = Shader_uniformCreate(nameUniform, loc);
+		if (!List_add(&program->uniformList, data)) {
+			return false;
+		}
+		// SDL_Log("uniform %s:%d:%d", nameUniform, i, loc);
+	}
+	FREE(idUniforms);
+	FREE(outUniforms);
+
+	// UNIFORMS BLOCK
+	//  get uniforms blocks
+	glGetProgramiv(program->id, GL_ACTIVE_UNIFORM_BLOCKS, &nUniforms);
+	idUniforms = ALLOC_ZERO(nUniforms, *idUniforms);
+	CHECK_ALLOC(idUniforms, false);
+	for (int i = 0; i < nUniforms; ++i) {
+		idUniforms[i] = i;
+	}
+	for (int i = 0; i < nUniforms; ++i) {
+		glGetActiveUniformBlockName(program->id, i, 128, &length, nameUniform);
+		loc = glGetUniformBlockIndex(program->id, nameUniform);
+		data = Shader_uniformCreate(nameUniform, loc);
+		if (!List_add(&program->uniformBlockList, data)) {
+			return false;
+		}
+		// SDL_Log("block %s:%d:%d", nameUniform, i, loc);
+	}
+	FREE(idUniforms);
+
+	return true;
+}
+
+static UniformLocation _Shader_uniformGet(List *list, const char *name) {
+	UniformData *data = NULL;
+	ListItem *iter = list->head;
+	while (iter) {
+		data = iter->data;
+		if (SDL_strcmp(name, data->name) == 0) {
+			return data->id;
+		}
+		iter = iter->next;
+	}
+	return InvalidLocation;
+}
+
+UniformLocation Shader_uniformGet(ShaderProgram *program, const char *name) {
+	return _Shader_uniformGet(&program->uniformList, name);
+}
+
+UniformLocation Shader_uniformBlockGet(ShaderProgram *program,
+                                       const char *name) {
+	return _Shader_uniformGet(&program->uniformBlockList, name);
+}
+
+void Shader_uniformDelete(UniformData *data) {
+	assert(data != NULL);
+	FREE(data->name);
+	FREE(data);
 }
 
 void Shader_shaderUnload(ShaderId shader) {
@@ -108,6 +209,7 @@ bool Shader_init(ShaderProgram **program, List *loaderList) {
 		return false;
 	}
 	(*program)->id = programId;
+	Shader_uniformLoad(*program);
 
 	return true;
 }

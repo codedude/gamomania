@@ -12,6 +12,18 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
+layout (std140) uniform Matrices
+{
+    mat4 qwe;
+    mat4 viqweeew;
+};
+layout (std140) uniform Pokeplus
+{
+    mat4 asda;
+    mat4 cwsacs;
+};
+
+
 void main()
 {
     TexCoords = aTexCoords;
