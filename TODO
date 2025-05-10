@@ -1,1 +1,1 @@
-- Stocker les UniformLocation au chargement du shaderm et lier des material avec
+- Inconsistence entre les XXX_delete : desfois free la struct desfois non (cf mesh non model oui)

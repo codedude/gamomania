@@ -61,7 +61,7 @@ void main()
     vec3 result = vec3(0.0, 0.0, 0.0);
     // if (theta > light.cutOff) {
     // ambient
-        vec3 ambient = light.ambient * texture(material.diffuse, TexCoords).rgb;
+        vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoords));
 
         // diffuse
         vec3 norm = normalize(Normal);

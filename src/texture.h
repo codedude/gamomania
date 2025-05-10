@@ -3,7 +3,7 @@
 
 static const char *TEXTURE_FOLDER = "asset/texture";
 
-typedef unsigned TextureId;
+typedef unsigned int TextureId;
 
 TextureId Texture_createFromImg(const char *path);
 void Texture_delete(TextureId textureId);

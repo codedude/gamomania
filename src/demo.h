@@ -6,6 +6,7 @@
 
 #include "camera.h"
 #include "event.h"
+#include "model.h"
 #include "shader.h"
 
 typedef struct {
@@ -16,6 +17,7 @@ typedef struct {
 	Camera *cam;
 	ShaderProgram *program;
 	ShaderProgram *lightProgram;
+	Model *model;
 	Event_Movement event;
 	unsigned int VBO;
 	unsigned int VAO;
@@ -24,10 +26,10 @@ typedef struct {
 } AppData;
 
 bool Event_process(AppData *appData, SDL_Event *event);
-
 void processEvents(AppData *appData);
-void demoRender(AppData *appData);
-bool loadVertices(AppData *appData);
-void unloadVertices(AppData *appData);
+
+bool demoSetup(AppData *appData);
+bool demoRender(AppData *appData);
+void demoDelete(AppData *appData);
 
 #endif

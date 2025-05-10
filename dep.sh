@@ -10,4 +10,4 @@ mesa-libEGL-devel vulkan-devel wayland-devel wayland-protocols-devel \
 libdrm-devel mesa-libgbm-devel libdecor-devel \
 pipewire-jack-audio-connection-kit-devel liburing-devel
 
-Leak : valgrind --leak-check=summary  --track-origins=yes --log-file=memcheck.log build/Debug/hello
+Leak : valgrind --leak-check=full  --track-origins=no --log-file=memcheck.log build/Debug/hello

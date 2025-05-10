@@ -12,17 +12,24 @@ TextureId Texture_createFromImg(const char *path) {
 	int width = 0;
 	int height = 0;
 	int nrChannels = 0;
-	bool transparency = false;
 	unsigned char *data = NULL;
 	const char *texturePath = NULL;
+	GLenum format = 0;
 
-	transparency = SDL_strnstr(path, ".png", SDL_strlen(path)) != NULL;
 	texturePath = concatPath(PROJECT_PATH, TEXTURE_FOLDER, path);
 	RET_IF_NULL(texturePath, 0);
 	stbi_set_flip_vertically_on_load(true);
 	data = stbi_load(texturePath, &width, &height, &nrChannels, 0);
 	RET_IF_NULL(data, 0);
 	FREE(texturePath);
+
+	if (nrChannels == 1)
+		format = GL_RED;
+	else if (nrChannels == 3)
+		format = GL_RGB;
+	else if (nrChannels == 4)
+		format = GL_RGBA;
+
 	glGenTextures(1, &textureId);
 	if (glCheckError())
 		return 0;
@@ -37,8 +44,8 @@ TextureId Texture_createFromImg(const char *path) {
 	                GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0,
-	             transparency ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, data);
+	glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format,
+	             GL_UNSIGNED_BYTE, data);
 	if (glCheckError())
 		return 0;
 	glGenerateMipmap(GL_TEXTURE_2D);

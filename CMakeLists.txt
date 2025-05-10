@@ -14,7 +14,7 @@ project(hello VERSION 0.0.1)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIG>")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIG>")
 
-set(SOURCES main demo shader gl_debug file texture camera event light material list)
+set(SOURCES main demo shader gl_debug file texture camera event light material list mesh model)
 list(TRANSFORM SOURCES PREPEND "src/")
 list(TRANSFORM SOURCES APPEND ".c")
 

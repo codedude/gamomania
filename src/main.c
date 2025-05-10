@@ -1,11 +1,9 @@
 #include "alloc.h"
-#include "list.h"
 #include <SDL3/SDL_hints.h>
 #define SDL_MAIN_USE_CALLBACKS 1 /* use the callbacks instead of main() */
 #include "camera.h"
 #include "demo.h"
 #include "gl_debug.h"
-#include "shader.h"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_error.h>
 #include <SDL3/SDL_events.h>
@@ -16,20 +14,11 @@
 #include <SDL3/SDL_stdinc.h>
 #include <SDL3/SDL_timer.h>
 #include <SDL3/SDL_video.h>
-#include <assimp/cimport.h>
-#include <assimp/postprocess.h>
-#include <assimp/scene.h>
 #include <glad/glad.h>
 #include <stdio.h>
 
 /* This function runs once at startup. */
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
-	// const struct aiScene *scene = aiImportFile(
-	//     "asset/model/backpack/backpack.obj",
-	//     aiProcess_CalcTangentSpace | aiProcess_Triangulate |
-	//         aiProcess_JoinIdenticalVertices | aiProcess_SortByPType);
-	// aiReleaseImport(scene);
-
 	AppData *appData = NULL;
 
 	appData = ALLOC_ZERO(1, *appData);
@@ -87,36 +76,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
 #endif
 	// }
 
-	appData->cam = Camera_create();
-	if (appData->cam == NULL) {
-		SDL_Log("Error camera create");
-		return SDL_APP_FAILURE;
-	}
-	Camera_setFov(appData->cam, 75.0);
-	Camera_setAspectFromViewport(appData->cam, appData->viewportWidth,
-	                             appData->viewportHeight);
-
-	List shaderLoaderList = {};
-	Shader_loaderAddShader(&shaderLoaderList, "vertex.glsl", GL_VERTEX_SHADER);
-	Shader_loaderAddShader(&shaderLoaderList, "fragment.glsl",
-	                       GL_FRAGMENT_SHADER);
-	if (!Shader_init(&(appData->program), &shaderLoaderList)) {
-		SDL_Log("Error shader_init 1");
-		return SDL_APP_FAILURE;
-	}
-	List_clear(&shaderLoaderList, &Shader_loaderDelete);
-	Shader_loaderAddShader(&shaderLoaderList, "lightVertex.glsl",
-	                       GL_VERTEX_SHADER);
-	Shader_loaderAddShader(&shaderLoaderList, "lightFragment.glsl",
-	                       GL_FRAGMENT_SHADER);
-	if (!Shader_init(&(appData->lightProgram), &shaderLoaderList)) {
-		SDL_Log("Error shader_init 2");
-		return SDL_APP_FAILURE;
-	}
-	List_clear(&shaderLoaderList, &Shader_loaderDelete);
-
-	if (!loadVertices(appData)) {
-		SDL_Log("Error loadVertices");
+	if (!demoSetup(appData)) {
 		return SDL_APP_FAILURE;
 	}
 
@@ -165,10 +125,7 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
 void SDL_AppQuit(void *appstate, SDL_AppResult result) {
 	AppData *appData = (AppData *)appstate;
 
-	Camera_destroy(appData->cam);
-	unloadVertices(appData);
-	Shader_free(&appData->program);
-	Shader_free(&appData->lightProgram);
+	demoDelete(appData);
 	SDL_GL_DestroyContext(appData->glContext);
 	SDL_DestroyWindow(appData->sdlWindow);
 	FREE(appData);

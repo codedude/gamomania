@@ -12,26 +12,26 @@
 #define CHECK_ALLOC(p, r)                                                      \
 	if (!(p)) {                                                                \
 		write(2, "alloc error\n", 12);                                         \
-		return (r);                                                            \
+		return r;                                                              \
 	}
 
 #define RET_IF_NULL(p, r)                                                      \
-	if (p == NULL)                                                             \
-		return (r);
+	if ((p) == NULL)                                                           \
+		return r;
 #define RET_IF_ZERO(p, r)                                                      \
-	if (p == 0)                                                                \
-		return (r);
+	if ((p) == 0)                                                              \
+		return r;
 #define RET_IF_NEG(p, r)                                                       \
-	if (p < 0)                                                                 \
-		return (r);
+	if ((p) < 0)                                                               \
+		return r;
 #define RET_IF_POS(p, r)                                                       \
-	if (p > 0)                                                                 \
-		return (r);
+	if ((p) > 0)                                                               \
+		return r;
 #define RET_IF_FALSE(p, r)                                                     \
-	if (!p)                                                                    \
-		return (r);
+	if (!(p))                                                                  \
+		return r;
 #define RET_IF_TRUE(p, r)                                                      \
-	if (p)                                                                     \
-		return (r);
+	if ((p))                                                                   \
+		return r;
 
 #endif
