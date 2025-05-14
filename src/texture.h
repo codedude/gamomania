@@ -28,12 +28,12 @@ typedef struct {
 	Texture *textures;
 } TextureBank;
 
-TextureId Texture_createFromImg(const char *path);
+TextureId Texture_createFromImg(const char *path, bool useSrgb);
 void Texture_delete(TextureId textureId);
 
 bool Texture_initBank(TextureBank *bank);
 TextureId Texture_getTexInBank(TextureBank *texBank, const char *name);
-TextureId Texture_addTexBank(TextureBank *bank, const char *name);
+TextureId Texture_addTexBank(TextureBank *bank, const char *name, bool useSrgb);
 void Texture_deleteBank(TextureBank *bank);
 
 #endif

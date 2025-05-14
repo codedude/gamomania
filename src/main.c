@@ -121,9 +121,11 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
 
 	processEvents(appData);
 
+	glDisable(GL_FRAMEBUFFER_SRGB);
 	glClearColor(0.2f, 0.3f, 0.3f, .5f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	demoRender(appData);
+	glEnable(GL_FRAMEBUFFER_SRGB);
 	SDL_GL_SwapWindow(appData->sdlWindow);
 
 	return SDL_APP_CONTINUE;

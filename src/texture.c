@@ -3,27 +3,33 @@
 #include "file.h"
 #include "gl_debug.h"
 #include "hash.h"
+#include "shader.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
 
-TextureId Texture_createFromImg(const char *path) {
+TextureId Texture_createFromImg(const char *path, bool useSrgb) {
 	TextureId textureId = 0;
 	int width = 0;
 	int height = 0;
 	int nrChannels = 0;
 	unsigned char *data = NULL;
-	GLenum format = 0;
+	GLenum formatIn = 0;
+	GLenum formatOut = 0;
 
 	stbi_set_flip_vertically_on_load(true);
 	data = stbi_load(path, &width, &height, &nrChannels, 0);
 	RET_IF_NULL(data, 0);
 
-	if (nrChannels == 1)
-		format = GL_RED;
-	else if (nrChannels == 3)
-		format = GL_RGB;
-	else if (nrChannels == 4)
-		format = GL_RGBA;
+	if (nrChannels == 1) {
+		formatIn = GL_RED;
+		formatOut = GL_RED;
+	} else if (nrChannels == 3) {
+		formatIn = GL_RGB;
+		formatOut = GL_SRGB;
+	} else if (nrChannels == 4) {
+		formatIn = GL_RGBA;
+		formatOut = GL_SRGB_ALPHA;
+	}
 
 	glGenTextures(1, &textureId);
 	if (glCheckError())
@@ -39,8 +45,8 @@ TextureId Texture_createFromImg(const char *path) {
 	                GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format,
-	             GL_UNSIGNED_BYTE, data);
+	glTexImage2D(GL_TEXTURE_2D, 0, useSrgb ? formatOut : formatIn, width,
+	             height, 0, formatIn, GL_UNSIGNED_BYTE, data);
 	if (glCheckError())
 		return 0;
 	glGenerateMipmap(GL_TEXTURE_2D);
@@ -67,13 +73,14 @@ TextureId Texture_getTexInBank(TextureBank *texBank, const char *name) {
 	return TEXTURE_INVALID;
 }
 
-TextureId Texture_addTexBank(TextureBank *bank, const char *name) {
+TextureId Texture_addTexBank(TextureBank *bank, const char *name,
+                             bool useSrgb) {
 	assert(bank != NULL);
 
 	TextureId texId = Texture_getTexInBank(bank, name);
 	if (texId != TEXTURE_INVALID)
 		return texId;
-	texId = Texture_createFromImg(name);
+	texId = Texture_createFromImg(name, useSrgb);
 	if (texId == TEXTURE_INVALID) {
 		SDL_Log("Texture_addTexBank: Cannot load texture %s", name);
 		return false;
@@ -96,7 +103,7 @@ bool Texture_initBank(TextureBank *bank) {
 	CHECK_ALLOC(bank->textures, false);
 	texWhitePath =
 	    concatPath(PROJECT_PATH, TEXTURE_FOLDER, TEXUTRE_WHITE1X1_PATH);
-	bank->texWhite = Texture_createFromImg(texWhitePath);
+	bank->texWhite = Texture_createFromImg(texWhitePath, false);
 	CHECK_ALLOC(bank->texWhite, false);
 	FREE(texWhitePath);
 

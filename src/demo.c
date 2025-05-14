@@ -118,17 +118,17 @@ bool demoSetup(AppData *appData) {
 	}
 
 	Light_addAmbientLight(&appData->sceneLight, (vec3){0.f, 0.f, 0.f},
-	                      (vec3){1.f, 1.f, 1.f}, 0.1f);
+	                      (vec3){1.f, 1.f, 1.f}, 0.15f);
 
 	Light_addDirectionalLight(&appData->sceneLight, (vec3){0.f, 0.f, 0.f},
-	                          (vec3){1.f, 1.f, 1.f}, .66f,
+	                          (vec3){1.f, 1.f, 1.f}, 1.f,
 	                          (vec3){0.5f, -0.5f, -0.5f});
-	Light_addPointLight(&appData->sceneLight, (vec3){1.f, 1.f, 2.f},
-	                    (vec3){1.f, 0.f, 0.f}, 0.9, 0.09f, 0.032f);
-	Light_addPointLight(&appData->sceneLight, (vec3){0.f, 1.f, 2.f},
-	                    (vec3){0.f, 1.f, 0.f}, 0.9, 0.09f, 0.032f);
-	Light_addPointLight(&appData->sceneLight, (vec3){-1.f, 1.f, 2.f},
-	                    (vec3){0.f, 0.f, 1.f}, 0.9, 0.09f, 0.032f);
+	Light_addPointLight(&appData->sceneLight, (vec3){1.f, 0.5f, .5f},
+	                    (vec3){1.f, 1.f, 1.f}, 0.9f, 0.09f, 0.032f);
+	Light_addPointLight(&appData->sceneLight, (vec3){0.f, 0.5f, .5f},
+	                    (vec3){1.f, 1.f, 1.f}, 0.9f, 0.09f, 0.032f);
+	Light_addPointLight(&appData->sceneLight, (vec3){-1.f, 0.5f, .5f},
+	                    (vec3){1.f, 1.f, 1.f}, 0.9f, 0.09f, 0.032f);
 	Light_load(&appData->sceneLight, appData->program);
 
 	glEnable(GL_DEPTH_TEST);

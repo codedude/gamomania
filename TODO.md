@@ -3,9 +3,3 @@
 # Helpers
 - Vrai system de vector ?
 - HashMap ?
-
-# Material system
-- OK
-
-# Light system
-- OK

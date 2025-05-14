@@ -1,4 +1,5 @@
 #include "material.h"
+#include "texture.h"
 #include <SDL3/SDL_log.h>
 #include <string.h>
 
@@ -12,7 +13,7 @@ bool Material_init(Material *mat, const char *name, TextureId texWhite1x1) {
 
 bool Material_addTexture(Material *mat, TextureBank *texBank, const char *name,
                          eTextureType type) {
-	TextureId tex = Texture_addTexBank(texBank, name);
+	TextureId tex = Texture_addTexBank(texBank, name, type == TEXTURE_DIFFUSE);
 	if (!tex) {
 		SDL_Log("Material_textureAdd: Cannot load texture %s", name);
 		return false;
