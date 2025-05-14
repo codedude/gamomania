@@ -3,3 +3,6 @@ build
 *.o
 out
 *.log
+asset
+*.out
+*.suppr

@@ -1,8 +1,13 @@
 #include "model.h"
 #include "alloc.h"
+#include "assimp/material.h"
 #include "assimp/mesh.h"
+#include "assimp/types.h"
 #include "file.h"
+#include "material.h"
 #include "mesh.h"
+#include "shader.h"
+#include "texture.h"
 #include <SDL3/SDL_log.h>
 #include <assimp/cimport.h>
 #include <assimp/postprocess.h>
@@ -10,7 +15,7 @@
 #include <string.h>
 
 // "asset/model/backpack/backpack.obj"
-Model *Model_create(const char *path) {
+Model *Model_create(const char *path, TextureBank *texBank) {
 	Model *model = ALLOC_ZERO(1, *model);
 	CHECK_ALLOC(model, NULL);
 
@@ -24,7 +29,8 @@ Model *Model_create(const char *path) {
 
 	const struct aiScene *scene = aiImportFile(
 	    fullPath, aiProcess_Triangulate | aiProcess_GenSmoothNormals |
-	                  aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+	                  aiProcess_FlipUVs | aiProcess_JoinIdenticalVertices |
+	                  aiProcess_CalcTangentSpace);
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE ||
 	    !scene->mRootNode) {
 		SDL_LogError(1, "Model_create::Assimp: %s", aiGetErrorString());
@@ -35,7 +41,14 @@ Model *Model_create(const char *path) {
 	model->meshes = ALLOC_ZERO(model->meshesLen, *model->meshes);
 	CHECK_ALLOC(model->meshes, NULL);
 
-	Model_processNode(model, scene->mRootNode, scene);
+	// first to populate materials array to meshes
+	model->texBank = texBank;
+	if (!Model_processMaterials(model, scene)) {
+		return NULL;
+	}
+	if (!Model_processNode(model, scene->mRootNode, scene)) {
+		return NULL;
+	}
 	aiReleaseImport(scene);
 
 	return model;
@@ -55,7 +68,105 @@ void Model_delete(Model *model) {
 	}
 	FREE(model->directory);
 	FREE(model->meshes);
+	for (int i = 0; i < model->materialsLen; ++i) {
+		Material_delete(&model->materials[i]);
+	}
+	FREE(model->materials);
 	FREE(model);
+}
+
+bool Model_processMaterials(Model *model, const struct aiScene *scene) {
+	model->materialsLen = scene->mNumMaterials;
+	model->materials = ALLOC_ZERO(model->materialsLen, *model->materials);
+	CHECK_ALLOC(model->materials, false);
+	for (unsigned int i = 0; i < scene->mNumMaterials; ++i) {
+		Material *localMat = &model->materials[i];
+		const struct aiMaterial *newMat = scene->mMaterials[i];
+		struct aiString matName = {};
+		aiGetMaterialString(newMat, AI_MATKEY_NAME, &matName);
+		Material_init(localMat, matName.data, model->texBank->texWhite);
+		struct aiColor4D buff4d = {};
+		float buffFloat = 0.f;
+		struct aiString buffString = {};
+		for (unsigned int j = 0; j < newMat->mNumProperties; ++j) {
+			if (AI_SUCCESS ==
+			    aiGetMaterialColor(newMat, AI_MATKEY_COLOR_DIFFUSE, &buff4d)) {
+				localMat->color[0] = buff4d.r;
+				localMat->color[1] = buff4d.g;
+				localMat->color[2] = buff4d.b;
+			}
+			// if (AI_SUCCESS ==
+			//     aiGetMaterialColor(newMat, AI_MATKEY_COLOR_AMBIENT, &buff4d))
+			//     {
+			// 	localMat->ambient[0] = buff4d.r;
+			// 	localMat->ambient[1] = buff4d.g;
+			// 	localMat->ambient[2] = buff4d.b;
+			// }
+			if (AI_SUCCESS ==
+			    aiGetMaterialColor(newMat, AI_MATKEY_COLOR_SPECULAR, &buff4d)) {
+				localMat->specular[0] = buff4d.r;
+				localMat->specular[1] = buff4d.g;
+				localMat->specular[2] = buff4d.b;
+			}
+			if (AI_SUCCESS ==
+			    aiGetMaterialFloat(newMat, AI_MATKEY_SHININESS, &buffFloat)) {
+				localMat->shininess = buffFloat;
+			}
+
+			unsigned int texCount;
+			enum aiTextureMapping texMapping;
+			unsigned int uvIndex;
+			ai_real blend;
+			enum aiTextureOp texOp;
+			enum aiTextureMapMode texMap;
+			unsigned int flags;
+
+			// TODO : identical for loops
+			// TODO : only 1 texture now
+			texCount = aiGetMaterialTextureCount(newMat, aiTextureType_DIFFUSE);
+			if (texCount > 0) {
+				for (auto t = 0; t < texCount; ++t) {
+					if (AI_SUCCESS ==
+					    aiGetMaterialTexture(newMat, aiTextureType_DIFFUSE, t,
+					                         &buffString, &texMapping, &uvIndex,
+					                         &blend, &texOp, &texMap, &flags)) {
+						const char *texPath =
+						    Model_getFilePath(model, buffString.data);
+						if (!Material_addTexture(localMat, model->texBank,
+						                         texPath, TEXTURE_DIFFUSE)) {
+							SDL_LogError(1, "Cannot load texture %s", texPath);
+							return false;
+						}
+						FREE(texPath);
+					}
+				}
+			}
+			texCount =
+			    aiGetMaterialTextureCount(newMat, aiTextureType_SPECULAR);
+			if (texCount > 0) {
+				for (auto t = 0; t < texCount; ++t) {
+					if (AI_SUCCESS ==
+					    aiGetMaterialTexture(newMat, aiTextureType_SPECULAR, t,
+					                         &buffString, &texMapping, &uvIndex,
+					                         &blend, &texOp, &texMap, &flags)) {
+						const char *texPath =
+						    Model_getFilePath(model, buffString.data);
+
+						if (!Material_addTexture(localMat, model->texBank,
+						                         texPath, TEXTURE_SPECULAR)) {
+							SDL_LogError(1,
+							             "Model proces: Cannot load texture %s",
+							             model->directory);
+							return false;
+						}
+						FREE(texPath);
+					}
+				}
+			}
+		}
+	}
+
+	return true;
 }
 
 bool Model_processNode(Model *model, struct aiNode *node,
@@ -74,10 +185,8 @@ bool Model_addMesh(Model *model, struct aiMesh *mesh,
                    const struct aiScene *scene) {
 	Vertex *vertices = NULL;
 	unsigned int *indices = NULL;
-	Material *materials = NULL;
 	int verticesLen = 0;
 	int indicesLen = 0;
-	int materialsLen = 0;
 
 	// vertices
 	verticesLen = mesh->mNumVertices;
@@ -94,12 +203,16 @@ bool Model_addMesh(Model *model, struct aiMesh *mesh,
 		}
 		// any texutres ? TODO can have up to 8 textures
 		if (mesh->mTextureCoords[0]) {
+			// todo, support up to 8 texture channel
 			vertices[i].texel[0] = mesh->mTextureCoords[0][i].x;
 			vertices[i].texel[1] = mesh->mTextureCoords[0][i].y;
-		} else {
-			vertices[i].texel[0] = 0.f;
-			vertices[i].texel[1] = 0.f;
-		}
+			vertices[i].tan[0] = mesh->mTangents[i].x;
+			vertices[i].tan[1] = mesh->mTangents[i].y;
+			vertices[i].tan[2] = mesh->mTangents[i].z;
+			vertices[i].bitan[0] = mesh->mBitangents[i].x;
+			vertices[i].bitan[1] = mesh->mBitangents[i].y;
+			vertices[i].bitan[2] = mesh->mBitangents[i].z;
+		} // already zero alloc
 	}
 
 	// indices
@@ -116,11 +229,14 @@ bool Model_addMesh(Model *model, struct aiMesh *mesh,
 			indices[indicePos++] = face.mIndices[j];
 		}
 	}
-	// materials
-	// if (mesh->mMaterialIndex >= 0) {
-	// }
+	Mesh_set(&model->meshes[model->meshesFreeSlot], vertices, verticesLen,
+	         indices, indicesLen, mesh->mMaterialIndex);
+	model->meshes[model->meshesFreeSlot].materials = model->materials;
+	++model->meshesFreeSlot;
 
-	Mesh_set(&model->meshes[model->meshesFreeSlot++], vertices, verticesLen,
-	         indices, indicesLen, materials, materialsLen);
 	return true;
+}
+
+const char *Model_getFilePath(Model *model, const char *filePath) {
+	return concatPath(model->directory, filePath);
 }

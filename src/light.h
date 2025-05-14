@@ -1,7 +1,10 @@
 #ifndef __LIGHT_H
 #define __LIGHT_H
 
+#include "shader.h"
 #include <cglm/cglm.h>
+
+#define LIGHT_MAX 16
 
 typedef struct {
 	// attenuation
@@ -11,36 +14,69 @@ typedef struct {
 } PointLight;
 
 typedef struct {
+	vec3 dir;
 	// spot size
 	float innerCutOff;
 	float outerCutOff;
+	// attenuation
+	float constant;
+	float linear;
+	float quadratic;
 } SpotLight;
 
 typedef struct {
-	// no data yet
+	vec3 dir;
 } DirectionalLight;
 
-typedef enum : int { LIGHT_DIRECTIONAL, LIGHT_SPOT, LIGHT_POINT } eLightType;
+typedef struct {
+	// no data yet
+} AmbientLight;
 
 typedef struct {
-	vec3 diffuse;    // color emitted
-	vec3 direction;  // 0,0,0 if point
-	vec3 ambient;    // 0,0,0 if no ambient
-	vec3 specular;   // 0,0,0 if no specular
+	// no data yet
+} AreaLight;
+
+typedef enum : int {
+	LIGHT_DIRECTIONAL,
+	LIGHT_SPOT,
+	LIGHT_POINT,
+	// LIGHT_AREA,
+	LIGHT_AMBIENT
+} eLightType;
+
+typedef struct {
+	vec3 pos;
+	vec3 color; // color emitted
+	float intensity;
 	eLightType type; // type of light
 	union {
 		DirectionalLight specDirectional;
 		SpotLight specSpot;
 		PointLight specPoint;
+		AreaLight specArea;
+		AmbientLight specAmbient;
 	};
 } Light;
 
-Light *Light_createPointLight(vec3 diffuse, vec3 specular, vec3 ambient,
-                              float constant, float linear, float quadratic);
-Light *Light_createSpotLight(vec3 direction, vec3 diffuse, vec3 specular,
-                             float innerCutOff, float outerCutOff);
-Light *Light_createDirectionnalLight(vec3 direction, vec3 diffuse,
-                                     vec3 specular, vec3 ambient);
-void Light_delete(Light *light);
+typedef struct {
+	int freeSpot; // todo proper array
+	int lightsLen;
+	Light **lights;
+} SceneLight;
+
+bool Light_init(SceneLight *scene);
+bool Light_load(SceneLight *scene, ShaderProgram *shader);
+void Light_delete(SceneLight *scene);
+
+bool Light_addPointLight(SceneLight *scene, vec3 pos, vec3 color,
+                         float intensity, float linear, float quadratic);
+bool Light_addSpotLight(SceneLight *scene, vec3 pos, vec3 color,
+                        float intensity, vec3 dir, float innerCutOff,
+                        float outerCutOff);
+bool Light_addDirectionalLight(SceneLight *scene, vec3 pos, vec3 color,
+                               float intensity, vec3 dir);
+bool Light_addAmbientLight(SceneLight *scene, vec3 pos, vec3 color,
+                           float intensity);
+void Light_deleteLight(Light *light);
 
 #endif

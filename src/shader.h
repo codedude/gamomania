@@ -50,8 +50,9 @@ void Shader_free(ShaderProgram **program);
 void Shader_uniformDelete(UniformData *data);
 UniformData *Shader_uniformCreate(const char *name, UniformLocation id);
 bool Shader_uniformLoad(ShaderProgram *program);
-UniformLocation Shader_uniformGet(ShaderProgram *program, const char *name);
-UniformLocation Shader_uniformBlockGet(ShaderProgram *program,
+UniformLocation Shader_uniformGet(const ShaderProgram *program,
+                                  const char *name);
+UniformLocation Shader_uniformBlockGet(const ShaderProgram *program,
                                        const char *name);
 
 bool Shader_shaderLoad(ShaderLoader *shader);

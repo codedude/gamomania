@@ -1,7 +1,7 @@
 sudo dnf install llvm clang clang-tools-extra lldb
 
 Build SDL3
-sudo dnf install gcc git-core make cmake SDL3 SDL3-devel \
+sudo dnf install gcc git-core make cmake SDL3 SDL3-devel SDL3_image-devel \
 alsa-lib-devel pulseaudio-libs-devel nas-devel pipewire-devel \
 libX11-devel libXext-devel libXrandr-devel libXcursor-devel libXfixes-devel \
 libXi-devel libXScrnSaver-devel dbus-devel ibus-devel \

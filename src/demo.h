@@ -6,8 +6,10 @@
 
 #include "camera.h"
 #include "event.h"
+#include "light.h"
 #include "model.h"
 #include "shader.h"
+#include "texture.h"
 
 typedef struct {
 	SDL_Window *sdlWindow;
@@ -18,6 +20,8 @@ typedef struct {
 	ShaderProgram *program;
 	ShaderProgram *lightProgram;
 	Model *model;
+	SceneLight sceneLight;
+	TextureBank texBank;
 	Event_Movement event;
 	unsigned int VBO;
 	unsigned int VAO;

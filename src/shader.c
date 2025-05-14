@@ -153,7 +153,7 @@ bool Shader_uniformLoad(ShaderProgram *program) {
 	return true;
 }
 
-static UniformLocation _Shader_uniformGet(List *list, const char *name) {
+static UniformLocation _Shader_uniformGet(const List *list, const char *name) {
 	UniformData *data = NULL;
 	ListItem *iter = list->head;
 	while (iter) {
@@ -166,11 +166,12 @@ static UniformLocation _Shader_uniformGet(List *list, const char *name) {
 	return InvalidLocation;
 }
 
-UniformLocation Shader_uniformGet(ShaderProgram *program, const char *name) {
+UniformLocation Shader_uniformGet(const ShaderProgram *program,
+                                  const char *name) {
 	return _Shader_uniformGet(&program->uniformList, name);
 }
 
-UniformLocation Shader_uniformBlockGet(ShaderProgram *program,
+UniformLocation Shader_uniformBlockGet(const ShaderProgram *program,
                                        const char *name) {
 	return _Shader_uniformGet(&program->uniformBlockList, name);
 }

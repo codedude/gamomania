@@ -2,8 +2,7 @@
 #include "alloc.h"
 #include "file.h"
 #include "gl_debug.h"
-#include "shader.h"
-#include <SDL3/SDL_stdinc.h>
+#include "hash.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
 
@@ -13,15 +12,11 @@ TextureId Texture_createFromImg(const char *path) {
 	int height = 0;
 	int nrChannels = 0;
 	unsigned char *data = NULL;
-	const char *texturePath = NULL;
 	GLenum format = 0;
 
-	texturePath = concatPath(PROJECT_PATH, TEXTURE_FOLDER, path);
-	RET_IF_NULL(texturePath, 0);
 	stbi_set_flip_vertically_on_load(true);
-	data = stbi_load(texturePath, &width, &height, &nrChannels, 0);
+	data = stbi_load(path, &width, &height, &nrChannels, 0);
 	RET_IF_NULL(data, 0);
-	FREE(texturePath);
 
 	if (nrChannels == 1)
 		format = GL_RED;
@@ -57,7 +52,65 @@ TextureId Texture_createFromImg(const char *path) {
 }
 
 void Texture_delete(TextureId textureId) {
-	if (textureId == 0)
+	if (textureId == TEXTURE_INVALID)
 		return;
 	glDeleteTextures(1, &textureId);
+}
+
+TextureId Texture_getTexInBank(TextureBank *texBank, const char *name) {
+	unsigned int texHash = hash(name);
+	for (int i = 0; i < texBank->texturesLen; ++i) {
+		if (texBank->textures[i].hash == texHash) {
+			return texBank->textures[i].id;
+		}
+	}
+	return TEXTURE_INVALID;
+}
+
+TextureId Texture_addTexBank(TextureBank *bank, const char *name) {
+	assert(bank != NULL);
+
+	TextureId texId = Texture_getTexInBank(bank, name);
+	if (texId != TEXTURE_INVALID)
+		return texId;
+	texId = Texture_createFromImg(name);
+	if (texId == TEXTURE_INVALID) {
+		SDL_Log("Texture_addTexBank: Cannot load texture %s", name);
+		return false;
+	}
+	bank->textures[bank->freeSlot].id = texId;
+	bank->textures[bank->freeSlot].hash = hash(name);
+	bank->freeSlot++;
+
+	return texId;
+}
+
+bool Texture_initBank(TextureBank *bank) {
+	assert(bank != NULL);
+
+	const char *texWhitePath = NULL;
+
+	bank->freeSlot = 0;
+	bank->texturesLen = 16;
+	bank->textures = ALLOC_ZERO(bank->texturesLen, *bank->textures);
+	CHECK_ALLOC(bank->textures, false);
+	texWhitePath =
+	    concatPath(PROJECT_PATH, TEXTURE_FOLDER, TEXUTRE_WHITE1X1_PATH);
+	bank->texWhite = Texture_createFromImg(texWhitePath);
+	CHECK_ALLOC(bank->texWhite, false);
+	FREE(texWhitePath);
+
+	return true;
+}
+
+void Texture_deleteBank(TextureBank *bank) {
+	if (!bank)
+		return;
+	if (bank->texturesLen > 0) {
+		for (int i = 0; i < bank->freeSlot; ++i) {
+			Texture_delete(bank->textures[i].id);
+		}
+	}
+	Texture_delete(bank->texWhite);
+	FREE(bank->textures);
 }

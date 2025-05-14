@@ -1,32 +1,28 @@
 #include "mesh.h"
 #include "alloc.h"
 #include "gl_debug.h"
-#include "material.h"
 #include "shader.h"
 
 Mesh *Mesh_create(Vertex *vertices, int verticesLen, unsigned int *indices,
-                  int indicesLen, Material *materials, int materialsLen) {
+                  int indicesLen, int materialId) {
 	Mesh *mesh = ALLOC_ZERO(1, *mesh);
 	CHECK_ALLOC(mesh, NULL);
 	mesh->verticesLen = verticesLen;
 	mesh->indicesLen = indicesLen;
-	mesh->materialsLen = materialsLen;
 	mesh->vertices = vertices;
 	mesh->indices = indices;
-	mesh->materials = materials;
+	mesh->materialId = materialId;
 	Mesh_load(mesh);
 	return mesh;
 }
 
 bool Mesh_set(Mesh *mesh, Vertex *vertices, int verticesLen,
-              unsigned int *indices, int indicesLen, Material *materials,
-              int materialsLen) {
+              unsigned int *indices, int indicesLen, int materialId) {
 	mesh->verticesLen = verticesLen;
 	mesh->indicesLen = indicesLen;
-	mesh->materialsLen = materialsLen;
 	mesh->vertices = vertices;
 	mesh->indices = indices;
-	mesh->materials = materials;
+	mesh->materialId = materialId;
 	Mesh_load(mesh);
 	return true;
 }
@@ -71,17 +67,38 @@ void Mesh_delete(Mesh *mesh) {
 	RET_IF_NULL(mesh, );
 	FREE(mesh->vertices);
 	FREE(mesh->indices);
-	for (int i = 0; i < mesh->materialsLen; ++i) {
-		Material_delete(&mesh->materials[i]);
-	}
-	FREE(mesh->materials);
 	glDeleteVertexArrays(1, &mesh->VAO);
 	glDeleteBuffers(1, &mesh->EBO);
 	glDeleteBuffers(1, &mesh->VBO);
 }
 
 bool Mesh_draw(const Mesh *mesh, const ShaderProgram *shader) {
-	// todo manage texture
+	Material *mat = &mesh->materials[mesh->materialId];
+
+	glActiveTexture(GL_TEXTURE0);
+	Shader_setInt(Shader_uniformGet(shader, "material.texDiffuse"), 0);
+	if (mat->texDiffuseMap != 0) {
+		glBindTexture(GL_TEXTURE_2D, mat->texDiffuseMap);
+	} else {
+		glBindTexture(GL_TEXTURE_2D, mat->texWhite1x1);
+	}
+	glActiveTexture(GL_TEXTURE1);
+	Shader_setInt(Shader_uniformGet(shader, "material.texSpecular"), 1);
+	if (mat->texSpecularMap != 0) {
+		glBindTexture(GL_TEXTURE_2D, mat->texSpecularMap);
+	} else {
+		glBindTexture(GL_TEXTURE_2D, mat->texWhite1x1);
+	}
+	glActiveTexture(GL_TEXTURE0);
+
+	// send colors and lights params
+	Shader_setVec3(Shader_uniformGet(shader, "material.color"), mat->color);
+	Shader_setVec3(Shader_uniformGet(shader, "material.specular"),
+	               mat->specular);
+	Shader_setFloat(Shader_uniformGet(shader, "material.shininess"),
+	                mat->shininess);
+
+	// draw
 	glBindVertexArray(mesh->VAO);
 	glDrawElements(GL_TRIANGLES, mesh->indicesLen, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
