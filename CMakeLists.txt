@@ -23,7 +23,7 @@ add_subdirectory(vendored/assimp EXCLUDE_FROM_ALL)
 add_subdirectory(vendored/glm EXCLUDE_FROM_ALL)
 
 
-set(SOURCES main shader demo gl_debug file texture camera event light material list mesh model hash)
+set(SOURCES main shader demo gl_debug file texture camera event light material mesh model list)
 
 list(TRANSFORM SOURCES PREPEND "src/")
 list(TRANSFORM SOURCES APPEND ".cpp")
@@ -47,9 +47,9 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS_DEBUG}")
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DDEBUG")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
 
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address -g")
-add_compile_options(-fsanitize=address -g)
-add_link_options(-fsanitize=address)
+# set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address -g")
+# add_compile_options(-fsanitize=address -g)
+# add_link_options(-fsanitize=address)
 
 add_compile_definitions(PROJECT_PATH="${CMAKE_SOURCE_DIR}")
 

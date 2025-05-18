@@ -1,19 +1,11 @@
 #include "camera.hpp"
 #include "alloc.hpp"
-#include "glm/ext/matrix_transform.hpp"
-#include "glm/ext/quaternion_geometric.hpp"
 #include <SDL3/SDL_log.h>
 #include <SDL3/SDL_stdinc.h>
-#include <glm/ext/quaternion_float.hpp>
 #include <glm/glm.hpp>
 
 void printVec3(const char *t, glm::vec3 v) {
 	SDL_Log("%s => v={%.2f, %.2f, %.2f}", t, v[0], v[1], v[2]);
-}
-
-// lookAt to a target, not a dir
-static void _updateLookAt(Camera *cam, glm::vec3 target) {
-	cam->lookAt = glm::lookAt(cam->pos, target, cam->up);
 }
 
 // lookAt to a dir, not a target
@@ -33,7 +25,7 @@ Camera *Camera_create() {
 	cam->nearZ = 0.1;
 	cam->farZ = 128.0;
 	cam->eulerAngle = glm::vec3{0., -90., 0.}; // default no rot
-	cam->pos = glm::vec3{0., 0., 3.};        // default pos at {0,0,3}
+	cam->pos = glm::vec3{0., 0., 3.};          // default pos at {0,0,3}
 	cam->up = glm::vec3{0., 1., 0.}; // init at {0,1,0} to get right vector
 	// target the center of the scene {0,0,0}
 	// dir is reverse cause ogl is RH, to get right an up axis
@@ -62,14 +54,14 @@ void Camera_setDir(Camera *cam, glm::vec3 dir) {
 }
 
 void Camera_setDirFromTarget(Camera *cam, glm::vec3 target) {
-    cam->forward = glm::normalize(target-cam->pos);
+	cam->forward = glm::normalize(target - cam->pos);
 	_updateLook(cam);
 }
 
 void Camera_setPosAndDirFromTarget(Camera *cam, glm::vec3 pos,
                                    glm::vec3 target) {
 	cam->pos = pos;
-    cam->forward = glm::normalize(target-pos);
+	cam->forward = glm::normalize(target - pos);
 	_updateLook(cam);
 }
 

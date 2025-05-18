@@ -2,7 +2,8 @@
 #include "alloc.hpp"
 #include "file.hpp"
 #include "gl_debug.hpp"
-#include "hash.hpp"
+#include <string>
+
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
 
@@ -63,7 +64,7 @@ void Texture_delete(TextureId textureId) {
 }
 
 TextureId Texture_getTexInBank(TextureBank *texBank, const char *name) {
-	unsigned int texHash = hash(name);
+	unsigned int texHash = std::hash<const char *>{}(name);
 	for (int i = 0; i < texBank->texturesLen; ++i) {
 		if (texBank->textures[i].hash == texHash) {
 			return texBank->textures[i].id;
@@ -85,7 +86,7 @@ TextureId Texture_addTexBank(TextureBank *bank, const char *name,
 		return false;
 	}
 	bank->textures[bank->freeSlot].id = texId;
-	bank->textures[bank->freeSlot].hash = hash(name);
+	bank->textures[bank->freeSlot].hash = std::hash<const char *>{}(name);
 	bank->freeSlot++;
 
 	return texId;
