@@ -1,29 +1,27 @@
-#include "alloc.h"
-#include <SDL3/SDL_hints.h>
-#include <SDL3/SDL_render.h>
 #define SDL_MAIN_USE_CALLBACKS 1 /* use the callbacks instead of main() */
-#include "camera.h"
-#include "demo.h"
-#include "gl_debug.h"
+#include "alloc.hpp"
+#include "camera.hpp"
+#include "demo.hpp"
+#include "gl_debug.hpp"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_error.h>
 #include <SDL3/SDL_events.h>
+#include <SDL3/SDL_hints.h>
 #include <SDL3/SDL_init.h>
 #include <SDL3/SDL_keycode.h>
 #include <SDL3/SDL_log.h>
 #include <SDL3/SDL_main.h>
+#include <SDL3/SDL_render.h>
 #include <SDL3/SDL_stdinc.h>
 #include <SDL3/SDL_timer.h>
 #include <SDL3/SDL_video.h>
-// #define CLAY_IMPLEMENTATION
-// #include <clay/clay.h>
 #include <glad/glad.h>
 
 /* This function runs once at startup. */
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
 	AppData *appData = NULL;
 
-	appData = ALLOC_ZERO(1, *appData);
+	appData = ALLOC_ZERO(1, AppData);
 	CHECK_ALLOC(appData, SDL_APP_FAILURE);
 	*appstate = appData;
 

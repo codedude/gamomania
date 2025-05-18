@@ -1,10 +1,10 @@
-#include "list.h"
-#include "alloc.h"
+#include "list.hpp"
+#include "alloc.hpp"
 #include <SDL3/SDL_log.h>
 #include <assert.h>
 
 List *List_create() {
-	List *list = ALLOC_ZERO(1, *list);
+	List *list = ALLOC_ZERO(1, List);
 	CHECK_ALLOC(list, NULL);
 	return list;
 }
@@ -26,7 +26,7 @@ void _List_clear(List *list, void (*deleteData)(void *data)) {
 
 bool _List_add(List *list, void *data) {
 	assert(list != NULL);
-	ListItem *item = ALLOC_ZERO(1, *item);
+	ListItem *item = ALLOC_ZERO(1, ListItem);
 	CHECK_ALLOC(item, false);
 	item->data = data;
 	item->next = list->head;

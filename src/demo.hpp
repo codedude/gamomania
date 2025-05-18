@@ -1,15 +1,14 @@
 #ifndef __DEMO_H
 #define __DEMO_H
 
+#include "camera.hpp"
+#include "event.hpp"
+#include "light.hpp"
+#include "model.hpp"
+#include "shader.hpp"
+#include "texture.hpp"
 #include <SDL3/SDL_video.h>
 #include <glad/glad.h>
-
-#include "camera.h"
-#include "event.h"
-#include "light.h"
-#include "model.h"
-#include "shader.h"
-#include "texture.h"
 
 typedef struct {
 	SDL_Window *sdlWindow;

@@ -6,3 +6,4 @@ out
 asset
 *.out
 *.suppr
+vendored

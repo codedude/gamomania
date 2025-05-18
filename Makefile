@@ -1,8 +1,8 @@
 asan:
-	LSAN_OPTIONS=suppressions=asan.suppr ./build/Debug/hello &> asan.out
+	LSAN_OPTIONS=suppressions=asan.suppr ./build/Debug/gamomania &> asan.out
 
 debug:
-	./build/Debug/hello
+	./build/Debug/gamomania
 
 stats:
 	cloc src

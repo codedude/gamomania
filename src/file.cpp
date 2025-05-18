@@ -1,8 +1,9 @@
-#include "alloc.h"
+#include "alloc.hpp"
 #include <SDL3/SDL_iostream.h>
 #include <SDL3/SDL_log.h>
 #include <SDL3/SDL_stdinc.h>
 #include <assert.h>
+#include <cstdlib>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -15,7 +16,7 @@ const char *_concatPath(const char *base, ...) {
 	const size_t maxPathLen = 1024;
 	va_list args;
 
-	buffer = ALLOC_ZERO(maxPathLen, char);
+	buffer = (char *)ALLOC_ZERO(maxPathLen, char);
 	CHECK_ALLOC(buffer, NULL);
 	SDL_strlcat(buffer, base, maxPathLen);
 	va_start(args, base);

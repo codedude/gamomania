@@ -1,4 +1,4 @@
-#include "gl_debug.h"
+#include "gl_debug.hpp"
 #include <SDL3/SDL_log.h>
 
 bool _glCheckError(const char *file, const char *function, int line) {

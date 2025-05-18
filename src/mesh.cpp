@@ -1,11 +1,11 @@
-#include "mesh.h"
-#include "alloc.h"
-#include "gl_debug.h"
-#include "shader.h"
+#include "mesh.hpp"
+#include "alloc.hpp"
+#include "gl_debug.hpp"
+#include "shader.hpp"
 
 Mesh *Mesh_create(Vertex *vertices, int verticesLen, unsigned int *indices,
                   int indicesLen, int materialId) {
-	Mesh *mesh = ALLOC_ZERO(1, *mesh);
+	Mesh *mesh = ALLOC_ZERO(1, Mesh);
 	CHECK_ALLOC(mesh, NULL);
 	mesh->verticesLen = verticesLen;
 	mesh->indicesLen = indicesLen;

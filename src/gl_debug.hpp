@@ -1,7 +1,7 @@
 #ifndef __GL_DEBUG__H
 #define __GL_DEBUG__H
 
-#include "shader.h"
+#include "shader.hpp"
 #include <SDL3/SDL_log.h>
 
 bool _glCheckError(const char *file, const char *function, int line);

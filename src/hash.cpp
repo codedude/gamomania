@@ -1,4 +1,4 @@
-#include "hash.h"
+#include "hash.hpp"
 
 // Jenkins_one_at_a_time_hash Jenkins OAAT
 unsigned int hash(const char *str) {

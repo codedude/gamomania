@@ -1,11 +1,11 @@
 #ifndef __MODEL__
 #define __MODEL__
 
-#include "assimp/cimport.h"
-#include "assimp/scene.h"
-#include "mesh.h"
-#include "shader.h"
-#include "texture.h"
+#include "mesh.hpp"
+#include "shader.hpp"
+#include "texture.hpp"
+#include <assimp/cimport.h>
+#include <assimp/scene.h>
 
 #define MODEL_FOLDER "asset/model"
 

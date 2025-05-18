@@ -1,6 +1,8 @@
-#include "light.h"
-#include "alloc.h"
+#include "light.hpp"
+#include "alloc.hpp"
 #include <SDL3/SDL_log.h>
+#include <cstdio>
+#include <glm/vec3.hpp>
 
 bool Light_load(SceneLight *scene, ShaderProgram *shader) {
 	int nPointLight = 0;
@@ -63,7 +65,7 @@ bool Light_load(SceneLight *scene, ShaderProgram *shader) {
 
 bool Light_init(SceneLight *scene) {
 	scene->lightsLen = LIGHT_MAX;
-	scene->lights = ALLOC_ZERO(scene->lightsLen, *scene->lights);
+	scene->lights = ALLOC_ZERO(scene->lightsLen, Light *);
 	CHECK_ALLOC(scene->lights, false);
 	return true;
 }
@@ -85,18 +87,18 @@ static bool _addLightToScene(SceneLight *scene, Light *light) {
 	return true;
 }
 
-static Light *_createLight(vec3 pos, vec3 color, float intensity,
+static Light *_createLight(glm::vec3 pos, glm::vec3 color, float intensity,
                            eLightType type) {
-	Light *light = calloc(1, sizeof(*light));
+	Light *light = ALLOC_ZERO(1, Light);
 	CHECK_ALLOC(light, NULL)
-	glm_vec3_copy(pos, light->pos);
-	glm_vec3_copy(color, light->color);
+	light->pos = pos;
+	light->color = color;
 	light->intensity = intensity;
 	light->type = type;
 	return light;
 }
 
-bool Light_addPointLight(SceneLight *scene, vec3 pos, vec3 color,
+bool Light_addPointLight(SceneLight *scene, glm::vec3 pos, glm::vec3 color,
                          float intensity, float linear, float quadratic) {
 	Light *light = _createLight(pos, color, intensity, LIGHT_POINT);
 	RET_IF_NULL(light, NULL);
@@ -105,8 +107,8 @@ bool Light_addPointLight(SceneLight *scene, vec3 pos, vec3 color,
 	return _addLightToScene(scene, light);
 }
 
-bool Light_addSpotLight(SceneLight *scene, vec3 pos, vec3 color,
-                        float intensity, vec3 direction, float innerCutOff,
+bool Light_addSpotLight(SceneLight *scene, glm::vec3 pos, glm::vec3 color,
+                        float intensity, glm::vec3 direction, float innerCutOff,
                         float outerCutOff) {
 	Light *light = _createLight(pos, color, intensity, LIGHT_SPOT);
 	RET_IF_NULL(light, NULL);
@@ -115,15 +117,16 @@ bool Light_addSpotLight(SceneLight *scene, vec3 pos, vec3 color,
 	return _addLightToScene(scene, light);
 }
 
-bool Light_addDirectionalLight(SceneLight *scene, vec3 pos, vec3 color,
-                               float intensity, vec3 dir) {
+bool Light_addDirectionalLight(SceneLight *scene, glm::vec3 pos,
+                               glm::vec3 color, float intensity,
+                               glm::vec3 dir) {
 	Light *light = _createLight(pos, color, intensity, LIGHT_DIRECTIONAL);
 	RET_IF_NULL(light, NULL);
-	glm_vec3_copy(dir, light->specDirectional.dir);
+	light->specDirectional.dir = dir;
 	return _addLightToScene(scene, light);
 }
 
-bool Light_addAmbientLight(SceneLight *scene, vec3 pos, vec3 color,
+bool Light_addAmbientLight(SceneLight *scene, glm::vec3 pos, glm::vec3 color,
                            float intensity) {
 	Light *light = _createLight(pos, color, intensity, LIGHT_AMBIENT);
 	RET_IF_NULL(light, NULL);

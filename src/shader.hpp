@@ -1,10 +1,13 @@
 #ifndef __SHARE_H
 #define __SHARE_H
 
-#include "cglm/cglm.h"
-#include "list.h"
-#include "material.h"
+#include "list.hpp"
+#include "material.hpp"
 #include <glad/glad.h>
+#include <glm/mat4x4.hpp>
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
 #include <stddef.h>
 
 #define SHADER_UNIFORM_MAX_LEN 128
@@ -64,10 +67,10 @@ void Shader_programUnload(ProgramId program);
 void Shader_setInt(UniformLocation id, int v);
 void Shader_setFloat(UniformLocation id, float v);
 // float by default
-void Shader_setVec2(UniformLocation id, vec2 v);
-void Shader_setVec3(UniformLocation id, vec3 v);
-void Shader_setVec4(UniformLocation id, vec4 v);
-void _Shader_setMat4(UniformLocation id, int n, bool transpose, mat4 v);
+void Shader_setVec2(UniformLocation id, glm::vec2 v);
+void Shader_setVec3(UniformLocation id, glm::vec3 v);
+void Shader_setVec4(UniformLocation id, glm::vec4 v);
+void _Shader_setMat4(UniformLocation id, int n, bool transpose, glm::mat4 v);
 #define Shader_setMat4(id, v) _Shader_setMat4((id), 1, false, (v))
 #define Shader_setMat4n(id, v, n) _Shader_setMat4((id), (n), false, (v))
 #define Shader_setMat4t(id, v) _Shader_setMat4((id), 1, true, (v))

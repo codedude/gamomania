@@ -1,8 +1,8 @@
-#include "shader.h"
-#include "alloc.h"
-#include "file.h"
-#include "gl_debug.h"
-#include "list.h"
+#include "shader.hpp"
+#include "alloc.hpp"
+#include "file.hpp"
+#include "gl_debug.hpp"
+#include "list.hpp"
 #include <SDL3/SDL_iostream.h>
 #include <SDL3/SDL_log.h>
 #include <SDL3/SDL_stdinc.h>
@@ -61,7 +61,8 @@ ProgramId Shader_programLoad(List *loaderList) {
 	if (glCheckError())
 		return InvalidProgramId;
 	while (iter) {
-		RET_IF_FALSE(Shader_shaderLoad(iter->data), InvalidProgramId);
+		RET_IF_FALSE(Shader_shaderLoad((ShaderLoader *)iter->data),
+		             InvalidProgramId);
 		glAttachShader(programId, ((ShaderLoader *)iter->data)->id);
 		if (glCheckError())
 			return InvalidProgramId;
@@ -82,7 +83,7 @@ ProgramId Shader_programLoad(List *loaderList) {
 }
 
 UniformData *Shader_uniformCreate(const char *name, UniformLocation id) {
-	UniformData *data = ALLOC(1, *data);
+	UniformData *data = ALLOC_ZERO(1, UniformData);
 	CHECK_ALLOC(data, NULL);
 	data->id = id;
 	data->name = strdup(name);
@@ -91,9 +92,9 @@ UniformData *Shader_uniformCreate(const char *name, UniformLocation id) {
 }
 
 bool Shader_uniformLoad(ShaderProgram *program) {
-	GLuint *idUniforms = NULL;
-	GLint *outUniforms = NULL;
-	GLint nUniforms = -1;
+	unsigned int *idUniforms = NULL;
+	int *outUniforms = NULL;
+	int nUniforms = -1;
 	GLsizei length = -1;
 	char nameUniform[SHADER_UNIFORM_MAX_LEN] = {};
 	UniformLocation loc = -1;
@@ -103,9 +104,9 @@ bool Shader_uniformLoad(ShaderProgram *program) {
 	// UNIFORMS
 	// get number of uniform in program
 	glGetProgramiv(program->id, GL_ACTIVE_UNIFORMS, &nUniforms);
-	idUniforms = ALLOC_ZERO(nUniforms, *idUniforms);
+	idUniforms = ALLOC_ZERO(nUniforms, unsigned int);
 	CHECK_ALLOC(idUniforms, false);
-	outUniforms = ALLOC_ZERO(nUniforms, *outUniforms);
+	outUniforms = ALLOC_ZERO(nUniforms, int);
 	CHECK_ALLOC(outUniforms, false);
 	for (int i = 0; i < nUniforms; ++i) {
 		idUniforms[i] = i;
@@ -134,7 +135,7 @@ bool Shader_uniformLoad(ShaderProgram *program) {
 	// UNIFORMS BLOCK
 	//  get uniforms blocks
 	glGetProgramiv(program->id, GL_ACTIVE_UNIFORM_BLOCKS, &nUniforms);
-	idUniforms = ALLOC_ZERO(nUniforms, *idUniforms);
+	idUniforms = ALLOC_ZERO(nUniforms, unsigned int);
 	CHECK_ALLOC(idUniforms, false);
 	for (int i = 0; i < nUniforms; ++i) {
 		idUniforms[i] = i;
@@ -157,7 +158,7 @@ static UniformLocation _Shader_uniformGet(const List *list, const char *name) {
 	UniformData *data = NULL;
 	ListItem *iter = list->head;
 	while (iter) {
-		data = iter->data;
+		data = static_cast<UniformData *>(iter->data);
 		if (SDL_strcmp(name, data->name) == 0) {
 			return data->id;
 		}
@@ -205,7 +206,7 @@ bool Shader_init(ShaderProgram **program, List *loaderList) {
 	CHECK_ALLOC(program, false)
 	programId = Shader_programLoad(loaderList);
 	if (programId == 0) {
-		free(*program);
+		FREE(*program);
 		*program = NULL;
 		return false;
 	}
@@ -220,12 +221,11 @@ void Shader_free(ShaderProgram **program) {
 		return;
 	}
 	Shader_programUnload((*program)->id);
-	FREE(*program);
-	*program = NULL;
+	FREE(*program)
 }
 
 bool Shader_loaderAddShader(List *loaderList, const char *path, GLenum type) {
-	ShaderLoader *item = ALLOC_ZERO(1, *item);
+	ShaderLoader *item = ALLOC_ZERO(1, ShaderLoader);
 	CHECK_ALLOC(item, false);
 	item->filePath = strdup(path);
 	CHECK_ALLOC(item->filePath, false);
@@ -242,17 +242,17 @@ void Shader_loaderDelete(ShaderLoader *shaderLoader) {
 	FREE(shaderLoader);
 }
 
-inline void Shader_setInt(UniformLocation id, int v) { glUniform1i(id, v); }
-inline void Shader_setFloat(UniformLocation id, float v) { glUniform1f(id, v); }
-inline void Shader_setVec2(UniformLocation id, vec2 v) {
+void Shader_setInt(UniformLocation id, int v) { glUniform1i(id, v); }
+void Shader_setFloat(UniformLocation id, float v) { glUniform1f(id, v); }
+void Shader_setVec2(UniformLocation id, glm::vec2 v) {
 	glUniform2f(id, v[0], v[1]);
 }
-inline void Shader_setVec3(UniformLocation id, vec3 v) {
+void Shader_setVec3(UniformLocation id, glm::vec3 v) {
 	glUniform3f(id, v[0], v[1], v[2]);
 }
-inline void Shader_setVec4(UniformLocation id, vec4 v) {
+void Shader_setVec4(UniformLocation id, glm::vec4 v) {
 	glUniform4f(id, v[0], v[1], v[2], v[3]);
 }
-inline void _Shader_setMat4(UniformLocation id, int n, bool transpose, mat4 v) {
-	glUniformMatrix4fv(id, n, transpose, (float *)v);
+void _Shader_setMat4(UniformLocation id, int n, bool transpose, glm::mat4 v) {
+	glUniformMatrix4fv(id, n, transpose, &v[0][0]);
 }

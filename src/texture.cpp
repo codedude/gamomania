@@ -1,9 +1,8 @@
-#include "texture.h"
-#include "alloc.h"
-#include "file.h"
-#include "gl_debug.h"
-#include "hash.h"
-#include "shader.h"
+#include "texture.hpp"
+#include "alloc.hpp"
+#include "file.hpp"
+#include "gl_debug.hpp"
+#include "hash.hpp"
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
 
@@ -16,7 +15,7 @@ TextureId Texture_createFromImg(const char *path, bool useSrgb) {
 	GLenum formatIn = 0;
 	GLenum formatOut = 0;
 
-	stbi_set_flip_vertically_on_load(true);
+	stbi_set_flip_vertically_on_load(true); // TODO
 	data = stbi_load(path, &width, &height, &nrChannels, 0);
 	RET_IF_NULL(data, 0);
 
@@ -99,7 +98,7 @@ bool Texture_initBank(TextureBank *bank) {
 
 	bank->freeSlot = 0;
 	bank->texturesLen = 16;
-	bank->textures = ALLOC_ZERO(bank->texturesLen, *bank->textures);
+	bank->textures = ALLOC_ZERO(bank->texturesLen, Texture);
 	CHECK_ALLOC(bank->textures, false);
 	texWhitePath =
 	    concatPath(PROJECT_PATH, TEXTURE_FOLDER, TEXUTRE_WHITE1X1_PATH);

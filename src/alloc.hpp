@@ -4,8 +4,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#define ALLOC_ZERO(s, t) calloc((s), sizeof(t));
-#define ALLOC(s, t) malloc((s) * sizeof(t));
+#define ALLOC_ZERO(s, t) (t *)calloc((s), sizeof(t));
+#define ALLOC(s, t) (t *)malloc((s) * sizeof(t));
 
 #define FREE(p) free((void *)(p));
 

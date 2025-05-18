@@ -1,17 +1,18 @@
 #ifndef __MESH__
 #define __MESH__
 
-#include "shader.h"
-#include <cglm/cglm.h>
+#include "shader.hpp"
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
 
 typedef unsigned int GLBufferId;
 
 typedef struct {
-	vec3 pos;
-	vec3 normal;
-	vec2 texel;
-	vec3 tan;
-	vec3 bitan;
+	glm::vec3 pos;
+	glm::vec3 normal;
+	glm::vec2 texel;
+	glm::vec3 tan;
+	glm::vec3 bitan;
 } Vertex;
 
 typedef struct {

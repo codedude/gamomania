@@ -1,14 +1,17 @@
-#include "demo.h"
-#include "camera.h"
-#include "light.h"
-#include "list.h"
-#include "model.h"
-#include "shader.h"
-#include "texture.h"
+#include "demo.hpp"
+#include "camera.hpp"
+#include "glm/ext/matrix_clip_space.hpp"
+#include "glm/ext/matrix_transform.hpp"
+#include "light.hpp"
+#include "list.hpp"
+#include "model.hpp"
+#include "shader.hpp"
+#include "texture.hpp"
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_log.h>
 #include <SDL3/SDL_timer.h>
-#include <cglm/cglm.h>
+#include <glm/mat4x4.hpp>
+#include <glm/vec3.hpp>
 
 void processEvents(AppData *appData) {
 	static unsigned long lastFrame = -1;
@@ -16,7 +19,7 @@ void processEvents(AppData *appData) {
 	const unsigned long currentTime = SDL_GetTicks();
 	const unsigned long deltaTime = currentTime - lastFrame;
 	lastFrame = currentTime;
-	float cameraSpeed = 0.001f * (float)deltaTime;
+	float cameraSpeed = 0.0025f * (float)deltaTime;
 	if (appData->event.speed) {
 		cameraSpeed *= 2.f;
 	}
@@ -51,17 +54,18 @@ void processEvents(AppData *appData) {
 bool demoRender(AppData *appData) {
 	glUseProgram(appData->program->id);
 
-	mat4 projectionMat = GLM_MAT4_IDENTITY;
-	mat4 modelMat = GLM_MAT4_IDENTITY;
+	glm::mat4 projectionMat = glm::identity<glm::mat4>();
+	glm::mat4 modelMat = glm::identity<glm::mat4>();
 	unsigned int modelLoc = Shader_uniformGet(appData->program, "model");
 	unsigned int viewLoc = Shader_uniformGet(appData->program, "view");
 	unsigned int projectionLoc =
 	    Shader_uniformGet(appData->program, "projection");
 
-	glm_perspective(glm_rad(appData->cam->fov), appData->cam->aspect,
-	                appData->cam->nearZ, appData->cam->farZ, projectionMat);
-	glm_translate(modelMat, (vec3){0.f, 0.f, 0.f});
-	glm_scale(modelMat, (vec3){1.f, 1.f, 1.f});
+	projectionMat =
+	    glm::perspective(glm::radians(appData->cam->fov), appData->cam->aspect,
+	                     appData->cam->nearZ, appData->cam->farZ);
+	modelMat = glm::translate(modelMat, glm::vec3{0.f, 0.f, 0.f});
+	modelMat = glm::scale(modelMat, glm::vec3{1.f, 1.f, 1.f});
 	Shader_setMat4(modelLoc, modelMat);
 	Shader_setMat4(viewLoc, appData->cam->lookAt);
 	Shader_setMat4(projectionLoc, projectionMat);
@@ -83,7 +87,8 @@ bool demoSetup(AppData *appData) {
 	Camera_setFov(appData->cam, 75.0);
 	Camera_setAspectFromViewport(appData->cam, appData->viewportWidth,
 	                             appData->viewportHeight);
-	Camera_setPosAndDir(appData->cam, (vec3){0., 0., 3.}, (vec3){0., 0., -1.});
+	Camera_setPosAndDirFromTarget(appData->cam, (glm::vec3){0., 0., 3.},
+	                              (glm::vec3){0., 0., 0.});
 
 	List shaderLoaderList = {};
 	Shader_loaderAddShader(&shaderLoaderList, "modelVertex.glsl",
@@ -103,9 +108,10 @@ bool demoSetup(AppData *appData) {
 
 	// appData->model =
 	// Model_create("ellie/ellie_animation.obj", &appData->texBank);
+	// appData->model = Model_create("demo/terrain.fbx", &appData->texBank);
 	appData->model = Model_create("backpack/backpack.obj", &appData->texBank);
-	// appData->model = Model_create("sylvanas/sylvanas.obj",
-	// &appData->texBank);
+	// appData->model =
+	// Model_create("sylvanas/sylvanas.obj", &appData->texBank);
 
 	if (!appData->model) {
 		SDL_Log("Error Model create");
@@ -117,18 +123,18 @@ bool demoSetup(AppData *appData) {
 		return false;
 	}
 
-	Light_addAmbientLight(&appData->sceneLight, (vec3){0.f, 0.f, 0.f},
-	                      (vec3){1.f, 1.f, 1.f}, 0.15f);
+	Light_addAmbientLight(&appData->sceneLight, (glm::vec3){0.f, 0.f, 0.f},
+	                      (glm::vec3){1.f, 1.f, 1.f}, 0.15f);
 
-	Light_addDirectionalLight(&appData->sceneLight, (vec3){0.f, 0.f, 0.f},
-	                          (vec3){1.f, 1.f, 1.f}, 1.f,
-	                          (vec3){0.5f, -0.5f, -0.5f});
-	Light_addPointLight(&appData->sceneLight, (vec3){1.f, 0.5f, .5f},
-	                    (vec3){1.f, 1.f, 1.f}, 0.9f, 0.09f, 0.032f);
-	Light_addPointLight(&appData->sceneLight, (vec3){0.f, 0.5f, .5f},
-	                    (vec3){1.f, 1.f, 1.f}, 0.9f, 0.09f, 0.032f);
-	Light_addPointLight(&appData->sceneLight, (vec3){-1.f, 0.5f, .5f},
-	                    (vec3){1.f, 1.f, 1.f}, 0.9f, 0.09f, 0.032f);
+	Light_addDirectionalLight(&appData->sceneLight, (glm::vec3){0.f, 0.f, 0.f},
+	                          (glm::vec3){1.f, 1.f, 1.f}, 1.f,
+	                          (glm::vec3){0.5f, -0.5f, -0.5f});
+	Light_addPointLight(&appData->sceneLight, (glm::vec3){1.f, 0.5f, .5f},
+	                    (glm::vec3){1.f, 1.f, 1.f}, 0.9f, 0.09f, 0.032f);
+	Light_addPointLight(&appData->sceneLight, (glm::vec3){0.f, 0.5f, .5f},
+	                    (glm::vec3){1.f, 1.f, 1.f}, 0.9f, 0.09f, 0.032f);
+	Light_addPointLight(&appData->sceneLight, (glm::vec3){-1.f, 0.5f, .5f},
+	                    (glm::vec3){1.f, 1.f, 1.f}, 0.9f, 0.09f, 0.032f);
 	Light_load(&appData->sceneLight, appData->program);
 
 	glEnable(GL_DEPTH_TEST);

@@ -1,26 +1,25 @@
-#include "model.h"
-#include "alloc.h"
-#include "assimp/material.h"
-#include "assimp/mesh.h"
-#include "assimp/types.h"
-#include "file.h"
-#include "material.h"
-#include "mesh.h"
-#include "shader.h"
-#include "texture.h"
+#include "model.hpp"
+#include "alloc.hpp"
+#include "file.hpp"
+#include "material.hpp"
+#include "mesh.hpp"
+#include "shader.hpp"
+#include "texture.hpp"
 #include <SDL3/SDL_log.h>
-#include <assimp/cimport.h>
+#include <assimp/material.h>
+#include <assimp/mesh.h>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
+#include <assimp/types.h>
 #include <string.h>
 
 // "asset/model/backpack/backpack.obj"
 Model *Model_create(const char *path, TextureBank *texBank) {
-	Model *model = ALLOC_ZERO(1, *model);
+	Model *model = ALLOC_ZERO(1, Model);
 	CHECK_ALLOC(model, NULL);
 
 	const char *fullPath = concatPath(PROJECT_PATH, MODEL_FOLDER, path);
-	char *pathDirPos = strrchr(fullPath, '/');
+	const char *pathDirPos = strrchr(fullPath, '/');
 	if (!pathDirPos) {
 		SDL_Log("Model_create cant find dir path in %s", fullPath);
 		return NULL;
@@ -38,7 +37,7 @@ Model *Model_create(const char *path, TextureBank *texBank) {
 	}
 	FREE(fullPath);
 	model->meshesLen = scene->mNumMeshes;
-	model->meshes = ALLOC_ZERO(model->meshesLen, *model->meshes);
+	model->meshes = ALLOC_ZERO(model->meshesLen, Mesh);
 	CHECK_ALLOC(model->meshes, NULL);
 
 	// first to populate materials array to meshes
@@ -77,7 +76,7 @@ void Model_delete(Model *model) {
 
 bool Model_processMaterials(Model *model, const struct aiScene *scene) {
 	model->materialsLen = scene->mNumMaterials;
-	model->materials = ALLOC_ZERO(model->materialsLen, *model->materials);
+	model->materials = ALLOC_ZERO(model->materialsLen, Material);
 	CHECK_ALLOC(model->materials, false);
 	for (unsigned int i = 0; i < scene->mNumMaterials; ++i) {
 		Material *localMat = &model->materials[i];
@@ -85,7 +84,7 @@ bool Model_processMaterials(Model *model, const struct aiScene *scene) {
 		struct aiString matName = {};
 		aiGetMaterialString(newMat, AI_MATKEY_NAME, &matName);
 		Material_init(localMat, matName.data, model->texBank->texWhite);
-		struct aiColor4D buff4d = {};
+		aiColor4D buff4d = {};
 		float buffFloat = 0.f;
 		struct aiString buffString = {};
 		for (unsigned int j = 0; j < newMat->mNumProperties; ++j) {
@@ -190,7 +189,7 @@ bool Model_addMesh(Model *model, struct aiMesh *mesh,
 
 	// vertices
 	verticesLen = mesh->mNumVertices;
-	vertices = ALLOC_ZERO(verticesLen, *vertices);
+	vertices = ALLOC_ZERO(verticesLen, Vertex);
 	CHECK_ALLOC(vertices, false);
 	for (unsigned int i = 0; i < verticesLen; ++i) {
 		vertices[i].pos[0] = mesh->mVertices[i].x;
@@ -220,7 +219,7 @@ bool Model_addMesh(Model *model, struct aiMesh *mesh,
 	for (unsigned int i = 0; i < mesh->mNumFaces; ++i) {
 		indicesLen += mesh->mFaces[i].mNumIndices;
 	}
-	indices = ALLOC(indicesLen, *indices);
+	indices = ALLOC_ZERO(indicesLen, unsigned int);
 	CHECK_ALLOC(indices, false);
 	unsigned int indicePos = 0;
 	for (unsigned int i = 0; i < mesh->mNumFaces; ++i) {

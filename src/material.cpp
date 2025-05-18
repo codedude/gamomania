@@ -1,5 +1,5 @@
-#include "material.h"
-#include "texture.h"
+#include "material.hpp"
+#include "texture.hpp"
 #include <SDL3/SDL_log.h>
 #include <string.h>
 
@@ -41,11 +41,6 @@ bool Material_addTexture(Material *mat, TextureBank *texBank, const char *name,
 void Material_delete(Material *mat) {
 	if (!mat)
 		return;
-	// Textures are owned by TextureBank
-	// Texture_delete(mat->texDiffuseMap);
-	// Texture_delete(mat->texBumpMap);
-	// Texture_delete(mat->texHeightMap);
-	// Texture_delete(mat->texSpecularMap);
 }
 
 void Material_setReflectivity(Material *mat, float v) { mat->reflectivity = v; }
@@ -55,10 +50,6 @@ void Material_setShininess(Material *mat, float v) { mat->shininess = v; }
 void Material_setEmissionStrength(Material *mat, float v) {
 	mat->emissionStrength = v;
 }
-void Material_setColor(Material *mat, vec3 v) { glm_vec3_copy(v, mat->color); }
-void Material_setSpecular(Material *mat, vec3 v) {
-	glm_vec3_copy(v, mat->specular);
-}
-void Material_setEmission(Material *mat, vec3 v) {
-	glm_vec3_copy(v, mat->emission);
-}
+void Material_setColor(Material *mat, glm::vec3 v) { mat->color = v; }
+void Material_setSpecular(Material *mat, glm::vec3 v) { mat->specular = v; }
+void Material_setEmission(Material *mat, glm::vec3 v) { mat->emission = v; }

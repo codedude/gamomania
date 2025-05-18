@@ -1,8 +1,8 @@
 #ifndef __LIGHT_H
 #define __LIGHT_H
 
-#include "shader.h"
-#include <cglm/cglm.h>
+#include "shader.hpp"
+#include <glm/vec3.hpp>
 
 #define LIGHT_MAX 16
 
@@ -14,7 +14,7 @@ typedef struct {
 } PointLight;
 
 typedef struct {
-	vec3 dir;
+	glm::vec3 dir;
 	// spot size
 	float innerCutOff;
 	float outerCutOff;
@@ -25,7 +25,7 @@ typedef struct {
 } SpotLight;
 
 typedef struct {
-	vec3 dir;
+	glm::vec3 dir;
 } DirectionalLight;
 
 typedef struct {
@@ -45,8 +45,8 @@ typedef enum : int {
 } eLightType;
 
 typedef struct {
-	vec3 pos;
-	vec3 color; // color emitted
+	glm::vec3 pos;
+	glm::vec3 color; // color emitted
 	float intensity;
 	eLightType type; // type of light
 	union {
@@ -68,14 +68,14 @@ bool Light_init(SceneLight *scene);
 bool Light_load(SceneLight *scene, ShaderProgram *shader);
 void Light_delete(SceneLight *scene);
 
-bool Light_addPointLight(SceneLight *scene, vec3 pos, vec3 color,
+bool Light_addPointLight(SceneLight *scene, glm::vec3 pos, glm::vec3 color,
                          float intensity, float linear, float quadratic);
-bool Light_addSpotLight(SceneLight *scene, vec3 pos, vec3 color,
-                        float intensity, vec3 dir, float innerCutOff,
+bool Light_addSpotLight(SceneLight *scene, glm::vec3 pos, glm::vec3 color,
+                        float intensity, glm::vec3 dir, float innerCutOff,
                         float outerCutOff);
-bool Light_addDirectionalLight(SceneLight *scene, vec3 pos, vec3 color,
-                               float intensity, vec3 dir);
-bool Light_addAmbientLight(SceneLight *scene, vec3 pos, vec3 color,
+bool Light_addDirectionalLight(SceneLight *scene, glm::vec3 pos,
+                               glm::vec3 color, float intensity, glm::vec3 dir);
+bool Light_addAmbientLight(SceneLight *scene, glm::vec3 pos, glm::vec3 color,
                            float intensity);
 void Light_deleteLight(Light *light);
 

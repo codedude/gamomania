@@ -1,5 +1,5 @@
-#include "event.h"
-#include "demo.h"
+#include "event.hpp"
+#include "demo.hpp"
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_log.h>
 #include <SDL3/SDL_scancode.h>
