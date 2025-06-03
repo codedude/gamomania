@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "name": "clang c/c++23",
+            "compilerPath": "/usr/bin/clang++",
+            "cStandard": "c23",
+            "cxxStandard": "c++23",
+            "c++Standard": "c++23",
+            "cppStandard": "c++23",
+            "defines": []
+        }
+    ],
+    "version": 4
+}

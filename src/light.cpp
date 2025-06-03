@@ -1,10 +1,51 @@
 #include "light.hpp"
-#include "alloc.hpp"
 #include <SDL3/SDL_log.h>
 #include <cstdio>
 #include <glm/vec3.hpp>
+#include <memory>
 
-bool Light_load(SceneLight *scene, ShaderProgram *shader) {
+namespace dve {
+
+bool SceneLight::addPointLight(glm::vec3 pos, glm::vec3 color, float intensity,
+                               float linear, float quadratic) noexcept {
+	auto light =
+	    std::make_unique<Light>(pos, color, intensity, true, LightType::POINT);
+	light->specPoint.constant = 1.0f;
+	light->specPoint.linear = linear;
+	light->specPoint.quadratic = quadratic;
+	lights.push_back(std::move(light));
+	return true;
+}
+
+bool SceneLight::addSpotLight(glm::vec3 pos, glm::vec3 color, float intensity,
+                              glm::vec3 dir, float innerCutOff,
+                              float outerCutOff) noexcept {
+	auto light =
+	    std::make_unique<Light>(pos, color, intensity, true, LightType::SPOT);
+	light->specSpot.innerCutOff = innerCutOff;
+	light->specSpot.outerCutOff = outerCutOff;
+	lights.push_back(std::move(light));
+	return true;
+}
+
+bool SceneLight::addDirectionalLight(glm::vec3 pos, glm::vec3 color,
+                                     float intensity, glm::vec3 dir) noexcept {
+	auto light = std::make_unique<Light>(pos, color, intensity, true,
+	                                     LightType::DIRECTIONAL);
+	light->specDirectional.dir = dir;
+	lights.push_back(std::move(light));
+	return true;
+}
+
+bool SceneLight::addAmbientLight(glm::vec3 pos, glm::vec3 color,
+                                 float intensity) noexcept {
+	auto light = std::make_unique<Light>(pos, color, intensity, true,
+	                                     LightType::AMBIENT);
+	lights.push_back(std::move(light));
+	return true;
+}
+
+bool SceneLight::load(ShaderProgram *shader) noexcept {
 	int nPointLight = 0;
 	int nSpotLight = 0;
 	int nDirLight = 0;
@@ -13,10 +54,10 @@ bool Light_load(SceneLight *scene, ShaderProgram *shader) {
 #define BUFF_SIZE 128
 	char buff[BUFF_SIZE] = {};
 
-	for (int i = 0; i < scene->freeSpot; ++i) {
-		Light *light = scene->lights[i];
-		if (light->type == LIGHT_DIRECTIONAL) {
-			snprintf(buff, BUFF_SIZE, "directionalLights[%d].pos", nDirLight);
+	for (const auto &light : lights) {
+		if (light->type == LightType::DIRECTIONAL) {
+			std::snprintf(buff, BUFF_SIZE, "directionalLights[%d].pos",
+			              nDirLight);
 			Shader_setVec3(Shader_uniformGet(shader, buff), light->pos);
 			snprintf(buff, BUFF_SIZE, "directionalLights[%d].color", nDirLight);
 			Shader_setVec3(Shader_uniformGet(shader, buff), light->color);
@@ -27,7 +68,7 @@ bool Light_load(SceneLight *scene, ShaderProgram *shader) {
 			Shader_setVec3(Shader_uniformGet(shader, buff),
 			               light->specDirectional.dir);
 			++nDirLight;
-		} else if (light->type == LIGHT_POINT) {
+		} else if (light->type == LightType::POINT) {
 			snprintf(buff, BUFF_SIZE, "pointLights[%d].pos", nPointLight);
 			Shader_setVec3(Shader_uniformGet(shader, buff), light->pos);
 			snprintf(buff, BUFF_SIZE, "pointLights[%d].color", nPointLight);
@@ -44,14 +85,14 @@ bool Light_load(SceneLight *scene, ShaderProgram *shader) {
 			Shader_setFloat(Shader_uniformGet(shader, buff),
 			                light->specPoint.quadratic);
 			++nPointLight;
-		} else if (light->type == LIGHT_AMBIENT) {
+		} else if (light->type == LightType::AMBIENT) {
 			snprintf(buff, BUFF_SIZE, "ambientLights[%d].color", nAmbientLight);
 			Shader_setVec3(Shader_uniformGet(shader, buff), light->color);
 			snprintf(buff, BUFF_SIZE, "ambientLights[%d].intensity",
 			         nAmbientLight);
 			Shader_setFloat(Shader_uniformGet(shader, buff), light->intensity);
 			++nAmbientLight;
-		} else if (light->type == LIGHT_SPOT) {
+		} else if (light->type == LightType::SPOT) {
 			++nSpotLight;
 		}
 	}
@@ -63,74 +104,4 @@ bool Light_load(SceneLight *scene, ShaderProgram *shader) {
 	return true;
 }
 
-bool Light_init(SceneLight *scene) {
-	scene->lightsLen = LIGHT_MAX;
-	scene->lights = ALLOC_ZERO(scene->lightsLen, Light *);
-	CHECK_ALLOC(scene->lights, false);
-	return true;
-}
-
-void Light_delete(SceneLight *scene) {
-	for (int i = 0; i < scene->freeSpot; ++i) {
-		Light_deleteLight(scene->lights[i]);
-	}
-	if (scene->lightsLen > 0)
-		FREE(scene->lights);
-}
-
-static bool _addLightToScene(SceneLight *scene, Light *light) {
-	if (scene->freeSpot == scene->lightsLen) {
-		SDL_Log("Max number of light reached");
-		return false;
-	}
-	scene->lights[scene->freeSpot++] = light;
-	return true;
-}
-
-static Light *_createLight(glm::vec3 pos, glm::vec3 color, float intensity,
-                           eLightType type) {
-	Light *light = ALLOC_ZERO(1, Light);
-	CHECK_ALLOC(light, NULL)
-	light->pos = pos;
-	light->color = color;
-	light->intensity = intensity;
-	light->type = type;
-	return light;
-}
-
-bool Light_addPointLight(SceneLight *scene, glm::vec3 pos, glm::vec3 color,
-                         float intensity, float linear, float quadratic) {
-	Light *light = _createLight(pos, color, intensity, LIGHT_POINT);
-	RET_IF_NULL(light, NULL);
-	light->specPoint =
-	    (PointLight){.constant = 1.0, .linear = linear, .quadratic = quadratic};
-	return _addLightToScene(scene, light);
-}
-
-bool Light_addSpotLight(SceneLight *scene, glm::vec3 pos, glm::vec3 color,
-                        float intensity, glm::vec3 direction, float innerCutOff,
-                        float outerCutOff) {
-	Light *light = _createLight(pos, color, intensity, LIGHT_SPOT);
-	RET_IF_NULL(light, NULL);
-	light->specSpot =
-	    (SpotLight){.innerCutOff = innerCutOff, .outerCutOff = outerCutOff};
-	return _addLightToScene(scene, light);
-}
-
-bool Light_addDirectionalLight(SceneLight *scene, glm::vec3 pos,
-                               glm::vec3 color, float intensity,
-                               glm::vec3 dir) {
-	Light *light = _createLight(pos, color, intensity, LIGHT_DIRECTIONAL);
-	RET_IF_NULL(light, NULL);
-	light->specDirectional.dir = dir;
-	return _addLightToScene(scene, light);
-}
-
-bool Light_addAmbientLight(SceneLight *scene, glm::vec3 pos, glm::vec3 color,
-                           float intensity) {
-	Light *light = _createLight(pos, color, intensity, LIGHT_AMBIENT);
-	RET_IF_NULL(light, NULL);
-	return _addLightToScene(scene, light);
-}
-
-void Light_deleteLight(Light *light) { FREE(light); }
+} // namespace dve

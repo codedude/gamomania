@@ -19,7 +19,7 @@ typedef struct {
 	ShaderProgram *program;
 	ShaderProgram *lightProgram;
 	Model *model;
-	SceneLight sceneLight;
+	dve::SceneLight sceneLight;
 	TextureBank texBank;
 	Event_Movement event;
 	unsigned int VBO;

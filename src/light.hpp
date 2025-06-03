@@ -3,8 +3,12 @@
 
 #include "shader.hpp"
 #include <glm/vec3.hpp>
+#include <initializer_list>
+#include <memory>
 
-#define LIGHT_MAX 16
+namespace dve {
+
+inline constexpr int MAX_LIGHT = 16;
 
 typedef struct {
 	// attenuation
@@ -32,51 +36,55 @@ typedef struct {
 	// no data yet
 } AmbientLight;
 
-typedef struct {
-	// no data yet
-} AreaLight;
-
-typedef enum : int {
-	LIGHT_DIRECTIONAL,
-	LIGHT_SPOT,
-	LIGHT_POINT,
-	// LIGHT_AREA,
-	LIGHT_AMBIENT
-} eLightType;
+enum class LightType { DIRECTIONAL, SPOT, POINT, AMBIENT };
 
 typedef struct {
 	glm::vec3 pos;
 	glm::vec3 color; // color emitted
 	float intensity;
-	eLightType type; // type of light
+	bool shadow;
+	LightType type; // type of light
 	union {
 		DirectionalLight specDirectional;
 		SpotLight specSpot;
 		PointLight specPoint;
-		AreaLight specArea;
 		AmbientLight specAmbient;
 	};
 } Light;
 
-typedef struct {
-	int freeSpot; // todo proper array
-	int lightsLen;
-	Light **lights;
-} SceneLight;
+class SceneLight {
+  private:
+	std::vector<std::unique_ptr<Light>> lights;
 
-bool Light_init(SceneLight *scene);
-bool Light_load(SceneLight *scene, ShaderProgram *shader);
-void Light_delete(SceneLight *scene);
+  public:
+	// constructor & destructor
+	SceneLight() = default;
+	~SceneLight() = default;
+	// no copy
+	SceneLight(const SceneLight &s) = delete;
+	SceneLight &operator=(const SceneLight &s) = delete;
+	// no move
+	SceneLight(SceneLight &&s) = delete;
+	SceneLight &operator=(SceneLight &&s) = delete;
 
-bool Light_addPointLight(SceneLight *scene, glm::vec3 pos, glm::vec3 color,
-                         float intensity, float linear, float quadratic);
-bool Light_addSpotLight(SceneLight *scene, glm::vec3 pos, glm::vec3 color,
-                        float intensity, glm::vec3 dir, float innerCutOff,
-                        float outerCutOff);
-bool Light_addDirectionalLight(SceneLight *scene, glm::vec3 pos,
-                               glm::vec3 color, float intensity, glm::vec3 dir);
-bool Light_addAmbientLight(SceneLight *scene, glm::vec3 pos, glm::vec3 color,
-                           float intensity);
-void Light_deleteLight(Light *light);
+	template <typename T, typename... Args>
+	bool addLight(Args &&...pArgs) noexcept {
+		auto p = std::make_unique<T>(std::forward<Args>(pArgs)...);
+		lights.push_back(std::move(p));
+		// emplace
+	}
+
+	bool addPointLight(glm::vec3 pos, glm::vec3 color, float intensity,
+	                   float linear, float quadratic) noexcept;
+	bool addSpotLight(glm::vec3 pos, glm::vec3 color, float intensity,
+	                  glm::vec3 dir, float innerCutOff,
+	                  float outerCutOff) noexcept;
+	bool addDirectionalLight(glm::vec3 pos, glm::vec3 color, float intensity,
+	                         glm::vec3 dir) noexcept;
+	bool addAmbientLight(glm::vec3 pos, glm::vec3 color,
+	                     float intensity) noexcept;
+	bool load(ShaderProgram *shader) noexcept;
+};
+} // namespace dve
 
 #endif

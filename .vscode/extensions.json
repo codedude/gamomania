@@ -1,0 +1,273 @@
+[
+    {
+        "identifier": {
+            "id": "ms-vscode.cmake-tools",
+            "uuid": "7c889349-8749-43d4-8b5e-08939936d7f4"
+        },
+        "version": "1.20.53",
+        "location": {
+            "$mid": 1,
+            "path": "/home/valentin/.vscode/extensions/ms-vscode.cmake-tools-1.20.53",
+            "scheme": "file"
+        },
+        "relativeLocation": "ms-vscode.cmake-tools-1.20.53",
+        "metadata": {
+            "installedTimestamp": 1745436650764,
+            "source": "gallery",
+            "id": "7c889349-8749-43d4-8b5e-08939936d7f4",
+            "publisherId": "5f5636e7-69ed-4afe-b5d6-8d231fb3d3ee",
+            "publisherDisplayName": "Microsoft",
+            "targetPlatform": "undefined",
+            "updated": false,
+            "private": false,
+            "isPreReleaseVersion": false,
+            "hasPreReleaseVersion": false
+        }
+    },
+    {
+        "identifier": {
+            "id": "llvm-vs-code-extensions.vscode-clangd",
+            "uuid": "103154cb-b81d-4e1b-8281-c5f4fa563d37"
+        },
+        "version": "0.1.33",
+        "location": {
+            "$mid": 1,
+            "path": "/home/valentin/.vscode/extensions/llvm-vs-code-extensions.vscode-clangd-0.1.33",
+            "scheme": "file"
+        },
+        "relativeLocation": "llvm-vs-code-extensions.vscode-clangd-0.1.33",
+        "metadata": {
+            "installedTimestamp": 1745436666649,
+            "pinned": false,
+            "source": "gallery",
+            "id": "103154cb-b81d-4e1b-8281-c5f4fa563d37",
+            "publisherId": "0f47d2a3-0735-453c-a89e-dc4193d6b6fa",
+            "publisherDisplayName": "LLVM",
+            "targetPlatform": "undefined",
+            "updated": false,
+            "private": false,
+            "isPreReleaseVersion": false,
+            "hasPreReleaseVersion": false
+        }
+    },
+    {
+        "identifier": {
+            "id": "miguelsolorio.fluent-icons",
+            "uuid": "41aac8eb-b4f4-408d-9708-320d033a17f8"
+        },
+        "version": "0.0.19",
+        "location": {
+            "$mid": 1,
+            "path": "/home/valentin/.vscode/extensions/miguelsolorio.fluent-icons-0.0.19",
+            "scheme": "file"
+        },
+        "relativeLocation": "miguelsolorio.fluent-icons-0.0.19",
+        "metadata": {
+            "installedTimestamp": 1745438440839,
+            "pinned": false,
+            "source": "gallery",
+            "id": "41aac8eb-b4f4-408d-9708-320d033a17f8",
+            "publisherId": "f1903af7-ceb4-410f-b269-cd514b33bea2",
+            "publisherDisplayName": "Miguel Solorio",
+            "targetPlatform": "undefined",
+            "updated": false,
+            "private": false,
+            "isPreReleaseVersion": false,
+            "hasPreReleaseVersion": false
+        }
+    },
+    {
+        "identifier": {
+            "id": "enkia.tokyo-night",
+            "uuid": "1cac7443-911e-48b9-8341-49f3880c288a"
+        },
+        "version": "1.1.2",
+        "location": {
+            "$mid": 1,
+            "path": "/home/valentin/.vscode/extensions/enkia.tokyo-night-1.1.2",
+            "scheme": "file"
+        },
+        "relativeLocation": "enkia.tokyo-night-1.1.2",
+        "metadata": {
+            "installedTimestamp": 1745438456137,
+            "pinned": false,
+            "source": "gallery",
+            "id": "1cac7443-911e-48b9-8341-49f3880c288a",
+            "publisherId": "745c7670-02e7-4a27-b662-e1b5719f2ba7",
+            "publisherDisplayName": "enkia",
+            "targetPlatform": "undefined",
+            "updated": false,
+            "private": false,
+            "isPreReleaseVersion": false,
+            "hasPreReleaseVersion": false
+        }
+    },
+    {
+        "identifier": {
+            "id": "dtoplak.vscode-glsllint",
+            "uuid": "3718a7c9-0ac8-46dd-81b5-8bc53de038af"
+        },
+        "version": "1.9.0",
+        "location": {
+            "$mid": 1,
+            "path": "/home/valentin/.vscode/extensions/dtoplak.vscode-glsllint-1.9.0",
+            "scheme": "file"
+        },
+        "relativeLocation": "dtoplak.vscode-glsllint-1.9.0",
+        "metadata": {
+            "installedTimestamp": 1745538443381,
+            "pinned": false,
+            "source": "gallery",
+            "id": "3718a7c9-0ac8-46dd-81b5-8bc53de038af",
+            "publisherId": "393aa94a-7f10-45b5-907a-762b06e52364",
+            "publisherDisplayName": "DanielToplak",
+            "targetPlatform": "undefined",
+            "updated": false,
+            "private": false,
+            "isPreReleaseVersion": false,
+            "hasPreReleaseVersion": false
+        }
+    },
+    {
+        "identifier": {
+            "id": "slevesque.shader",
+            "uuid": "3a63675f-7987-4cff-a411-d4a9568f560c"
+        },
+        "version": "1.1.5",
+        "location": {
+            "$mid": 1,
+            "path": "/home/valentin/.vscode/extensions/slevesque.shader-1.1.5",
+            "scheme": "file"
+        },
+        "relativeLocation": "slevesque.shader-1.1.5",
+        "metadata": {
+            "installedTimestamp": 1745538443382,
+            "pinned": false,
+            "source": "gallery",
+            "id": "3a63675f-7987-4cff-a411-d4a9568f560c",
+            "publisherId": "30cbfd41-b05d-4739-9271-f782deb68b9e",
+            "publisherDisplayName": "slevesque",
+            "targetPlatform": "undefined",
+            "updated": false,
+            "private": false,
+            "isPreReleaseVersion": false,
+            "hasPreReleaseVersion": false
+        }
+    },
+    {
+        "identifier": {
+            "id": "redhat.vscode-yaml",
+            "uuid": "2061917f-f76a-458a-8da9-f162de22b97e"
+        },
+        "version": "1.18.0",
+        "location": {
+            "$mid": 1,
+            "path": "/home/valentin/.vscode/extensions/redhat.vscode-yaml-1.18.0",
+            "scheme": "file"
+        },
+        "relativeLocation": "redhat.vscode-yaml-1.18.0",
+        "metadata": {
+            "isApplicationScoped": false,
+            "isMachineScoped": false,
+            "isBuiltin": false,
+            "installedTimestamp": 1745881992133,
+            "pinned": false,
+            "source": "gallery",
+            "id": "2061917f-f76a-458a-8da9-f162de22b97e",
+            "publisherId": "eed56242-9699-4317-8bc7-e9f4b9bdd3ff",
+            "publisherDisplayName": "Red Hat",
+            "targetPlatform": "undefined",
+            "updated": true,
+            "private": false,
+            "isPreReleaseVersion": false,
+            "hasPreReleaseVersion": false,
+            "preRelease": false
+        }
+    },
+    {
+        "identifier": {
+            "id": "ms-vscode.makefile-tools",
+            "uuid": "e09cf600-90a1-414e-92a0-031f1a5391c6"
+        },
+        "version": "0.12.17",
+        "location": {
+            "$mid": 1,
+            "path": "/home/valentin/.vscode/extensions/ms-vscode.makefile-tools-0.12.17",
+            "scheme": "file"
+        },
+        "relativeLocation": "ms-vscode.makefile-tools-0.12.17",
+        "metadata": {
+            "installedTimestamp": 1747239881201,
+            "source": "gallery",
+            "id": "e09cf600-90a1-414e-92a0-031f1a5391c6",
+            "publisherId": "5f5636e7-69ed-4afe-b5d6-8d231fb3d3ee",
+            "publisherDisplayName": "Microsoft",
+            "targetPlatform": "undefined",
+            "updated": false,
+            "private": false,
+            "isPreReleaseVersion": false,
+            "hasPreReleaseVersion": false
+        }
+    },
+    {
+        "identifier": {
+            "id": "pkief.material-icon-theme",
+            "uuid": "5db78037-f674-459f-a236-db622c427c5b"
+        },
+        "version": "5.23.0",
+        "location": {
+            "$mid": 1,
+            "path": "/home/valentin/.vscode/extensions/pkief.material-icon-theme-5.23.0",
+            "scheme": "file"
+        },
+        "relativeLocation": "pkief.material-icon-theme-5.23.0",
+        "metadata": {
+            "isApplicationScoped": false,
+            "isMachineScoped": false,
+            "isBuiltin": false,
+            "installedTimestamp": 1747421424395,
+            "pinned": false,
+            "source": "gallery",
+            "id": "5db78037-f674-459f-a236-db622c427c5b",
+            "publisherId": "f9e5bc2f-fea1-4075-917f-d83e01e69f56",
+            "publisherDisplayName": "Philipp Kief",
+            "targetPlatform": "undefined",
+            "updated": true,
+            "private": false,
+            "isPreReleaseVersion": false,
+            "hasPreReleaseVersion": false,
+            "preRelease": false
+        }
+    },
+    {
+        "identifier": {
+            "id": "vadimcn.vscode-lldb"
+        },
+        "version": "1.11.5",
+        "location": {
+            "$mid": 1,
+            "fsPath": "/home/valentin/.vscode/extensions/vadimcn.vscode-lldb-1.11.5",
+            "external": "file:///home/valentin/.vscode/extensions/vadimcn.vscode-lldb-1.11.5",
+            "path": "/home/valentin/.vscode/extensions/vadimcn.vscode-lldb-1.11.5",
+            "scheme": "file"
+        },
+        "relativeLocation": "vadimcn.vscode-lldb-1.11.5",
+        "metadata": {
+            "isApplicationScoped": false,
+            "isMachineScoped": false,
+            "isBuiltin": false,
+            "installedTimestamp": 1748990137357,
+            "pinned": false,
+            "source": "gallery",
+            "id": "bee31e34-a44b-4a76-9ec2-e9fd1439a0f6",
+            "publisherId": "3b05d186-6311-4caa-99b5-09032a9d3cf5",
+            "publisherDisplayName": "Vadim Chugunov",
+            "targetPlatform": "undefined",
+            "updated": true,
+            "private": false,
+            "isPreReleaseVersion": false,
+            "hasPreReleaseVersion": false,
+            "preRelease": false
+        }
+    }
+]

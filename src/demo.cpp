@@ -118,24 +118,22 @@ bool demoSetup(AppData *appData) {
 		return false;
 	}
 
-	if (!Light_init(&appData->sceneLight)) {
-		SDL_Log("Error Light_init");
-		return false;
-	}
+	appData->sceneLight.addAmbientLight(glm::vec3{0.f, 0.f, 0.f},
+	                                    glm::vec3{1.f, 1.f, 1.f}, 0.15f);
 
-	Light_addAmbientLight(&appData->sceneLight, (glm::vec3){0.f, 0.f, 0.f},
-	                      (glm::vec3){1.f, 1.f, 1.f}, 0.15f);
-
-	Light_addDirectionalLight(&appData->sceneLight, (glm::vec3){0.f, 0.f, 0.f},
-	                          (glm::vec3){1.f, 1.f, 1.f}, 1.f,
-	                          (glm::vec3){0.5f, -0.5f, -0.5f});
-	Light_addPointLight(&appData->sceneLight, (glm::vec3){1.f, 0.5f, .5f},
-	                    (glm::vec3){1.f, 1.f, 1.f}, 0.9f, 0.09f, 0.032f);
-	Light_addPointLight(&appData->sceneLight, (glm::vec3){0.f, 0.5f, .5f},
-	                    (glm::vec3){1.f, 1.f, 1.f}, 0.9f, 0.09f, 0.032f);
-	Light_addPointLight(&appData->sceneLight, (glm::vec3){-1.f, 0.5f, .5f},
-	                    (glm::vec3){1.f, 1.f, 1.f}, 0.9f, 0.09f, 0.032f);
-	Light_load(&appData->sceneLight, appData->program);
+	appData->sceneLight.addDirectionalLight(glm::vec3{0.f, 0.f, 0.f},
+	                                        glm::vec3{1.f, 1.f, 1.f}, 1.f,
+	                                        glm::vec3{0.5f, -0.5f, -0.5f});
+	appData->sceneLight.addPointLight(glm::vec3{1.f, 0.5f, .5f},
+	                                  glm::vec3{1.f, 1.f, 1.f}, 0.9f, 0.09f,
+	                                  0.032f);
+	appData->sceneLight.addPointLight(glm::vec3{0.f, 0.5f, .5f},
+	                                  glm::vec3{1.f, 1.f, 1.f}, 0.9f, 0.09f,
+	                                  0.032f);
+	appData->sceneLight.addPointLight(glm::vec3{-1.f, 0.5f, .5f},
+	                                  glm::vec3{1.f, 1.f, 1.f}, 0.9f, 0.09f,
+	                                  0.032f);
+	appData->sceneLight.load(appData->program);
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
@@ -147,7 +145,6 @@ bool demoSetup(AppData *appData) {
 void demoDelete(AppData *appData) {
 	List_clear(&appData->program->uniformList, &Shader_uniformDelete);
 	List_clear(&appData->program->uniformBlockList, &Shader_uniformDelete);
-	Light_delete(&appData->sceneLight);
 	Camera_destroy(appData->cam);
 	Texture_deleteBank(&appData->texBank);
 	Model_delete(appData->model);
